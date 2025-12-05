@@ -414,9 +414,7 @@
                         <a href="#" class="btn btn-accent btn-lg">
                             Jelajahi Desa
                         </a>
-                        <a href="#" class="btn btn-outline-light-custom btn-lg d-flex align-items-center justify-content-center gap-2">
-                            <i data-lucide="file-text" style="width: 20px;"></i> Layanan Online
-                        </a>
+
                     </div>
                 </div>
             </div>
