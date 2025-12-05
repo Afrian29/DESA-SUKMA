@@ -37,8 +37,16 @@ class ProfileController extends Controller
         $profile->video_url = $request->video_url;
 
         if ($request->hasFile('kades_photo')) {
-            $path = $request->file('kades_photo')->store('public/profile');
-            $profile->kades_photo = str_replace('public/', 'storage/', $path);
+            // Hapus foto lama jika ada
+            if ($profile->kades_photo && file_exists(public_path($profile->kades_photo))) {
+                unlink(public_path($profile->kades_photo));
+            }
+
+            // Simpan foto baru ke disk public
+            $file = $request->file('kades_photo');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('profile', $fileName, 'public');
+            $profile->kades_photo = 'storage/' . $path;
         }
 
         $profile->save();

@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -19,8 +21,10 @@ class GalleryController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/gallery');
-            $data['image'] = str_replace('public/', 'storage/', $path);
+            $file = $request->file('image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('gallery', $fileName, 'public');
+            $data['image'] = 'storage/' . $path;
         }
 
         Gallery::create($data);
@@ -31,7 +35,7 @@ class GalleryController extends Controller
     public function update(Request $request, $id)
     {
         $gallery = Gallery::findOrFail($id);
-        
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -42,11 +46,15 @@ class GalleryController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('image')) {
-            $oldPath = str_replace('storage/', 'public/', $gallery->image);
-            Storage::delete($oldPath);
-            
-            $path = $request->file('image')->store('public/gallery');
-            $data['image'] = str_replace('public/', 'storage/', $path);
+            // Hapus foto lama jika ada
+            if ($gallery->image && file_exists(public_path($gallery->image))) {
+                unlink(public_path($gallery->image));
+            }
+
+            $file = $request->file('image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('gallery', $fileName, 'public');
+            $data['image'] = 'storage/' . $path;
         }
 
         $gallery->update($data);
@@ -57,9 +65,11 @@ class GalleryController extends Controller
     public function destroy($id)
     {
         $gallery = Gallery::findOrFail($id);
-        
-        $oldPath = str_replace('storage/', 'public/', $gallery->image);
-        Storage::delete($oldPath);
+
+        // Hapus foto jika ada
+        if ($gallery->image && file_exists(public_path($gallery->image))) {
+            unlink(public_path($gallery->image));
+        }
 
         $gallery->delete();
 

@@ -501,26 +501,26 @@
                     <!-- Decor elements -->
                     <div class="position-absolute top-0 start-0 w-100 h-100 bg-warning bg-opacity-10 rounded-4 transform-rotate" style="transform: rotate(-3deg);"></div>
                     
-                    <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=2940&auto=format&fit=crop" class="img-fluid rounded-4 shadow-lg position-relative w-100 object-fit-cover" style="height: 500px;" alt="Kepala Desa">
-                    
+                    <img src="{{ optional($profile)->kades_photo ? asset($profile->kades_photo) : 'https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=2940&auto=format&fit=crop' }}" class="img-fluid rounded-4 shadow-lg position-relative w-100 object-fit-cover" style="height: 500px;" alt="Kepala Desa">
+
                     <div class="position-absolute bottom-0 start-0 m-4 p-4 bg-white bg-opacity-90 backdrop-blur rounded-3 shadow border-start border-4 border-primary" style="max-width: 80%;">
                         <small class="text-muted fw-bold text-uppercase d-block mb-1">Kepala Desa</small>
-                        <h4 class="fw-bold text-primary m-0">Bapak H. Sutrisno</h4>
+                        <h4 class="fw-bold text-primary m-0">{{ optional($profile)->kades_name ?? 'Bapak H. Sutrisno' }}</h4>
                     </div>
                 </div>
 
                 <!-- Text Column -->
                 <div class="col-lg-6 reveal">
-                    <h2 class="display-6 fw-bold text-primary mb-4">Membangun Desa Dengan Hati, Melayani Dengan Integritas.</h2>
+                    <h2 class="display-6 fw-bold text-primary mb-4">{{ optional($profile)->sambutan_title ?? 'Membangun Desa Dengan Hati, Melayani Dengan Integritas.' }}</h2>
                     <p class="lead text-muted mb-4">
-                        "Website ini adalah wujud komitmen kami terhadap transparansi dan pelayanan prima. Di era digital ini, Desa Sukma siap bertransformasi menjadi desa cerdas yang adaptif terhadap perubahan zaman."
+                        "{{ optional($profile)->sambutan_content ?? 'Website ini adalah wujud komitmen kami terhadap transparansi dan pelayanan prima. Di era digital ini, Desa Sukma siap bertransformasi menjadi desa cerdas yang adaptif terhadap perubahan zaman.' }}"
                     </p>
-                    
+
                     <div class="d-flex align-items-center gap-3 mb-5">
                         <div class="bg-accent rounded-pill" style="width: 5px; height: 50px;"></div>
                         <p class="fst-italic text-secondary m-0">"Gotong royong adalah kunci kemajuan kita bersama."</p>
                     </div>
-                    
+
                     <a href="#" class="btn btn-link text-primary fw-bold text-decoration-none p-0 d-inline-flex align-items-center">
                         Baca Profil Lengkap <i data-lucide="arrow-right" class="ms-2"></i>
                     </a>

@@ -1,0 +1,57 @@
+# FITUR WEBSITE DESA SUKMA
+
+Website ini adalah Sistem Informasi Manajemen Desa yang dirancang untuk membantu pengelolaan data kependudukan dan profil desa secara digital. Berikut adalah rincian fitur yang tersedia dalam aplikasi ini:
+
+## 1. Fitur Publik (Halaman Depan)
+Fitur ini dapat diakses oleh masyarakat umum tanpa perlu login:
+- **Profil Desa**: Menampilkan informasi umum mengenai desa, sejarah, visi, dan misi.
+- **Perangkat Desa**: Menampilkan struktur organisasi dan daftar perangkat desa (Kepala Desa, Sekretaris, dll) beserta jabatannya.
+- **Lembaga Desa**: Menampilkan daftar lembaga-lembaga yang ada di desa.
+- **Galeri Kegiatan**: Menampilkan dokumentasi foto kegiatan atau potensi desa.
+
+## 2. Fitur Administrator (Back-End)
+Fitur ini hanya dapat diakses oleh admin setelah melakukan login:
+
+### A. Autentikasi
+- **Login Admin**: Sistem keamanan untuk masuk ke halaman dashboard admin.
+- **Logout**: Keluar dari sesi admin.
+
+### B. Dashboard
+- Halaman ringkasan statistik atau informasi penting bagi admin.
+
+### C. Manajemen Kependudukan
+Admin dapat mengelola data penduduk secara lengkap:
+- **Daftar Penduduk**: Melihat seluruh data penduduk desa.
+- **Tambah Penduduk**: Menambahkan data penduduk baru.
+- **Edit Data Penduduk**: Memperbarui informasi penduduk.
+- **Hapus Data Penduduk**: Menghapus data penduduk dari sistem.
+- **Pencarian**: Fitur pencarian data penduduk dan Kartu Keluarga (KK) untuk memudahkan navigasi.
+
+### D. Manajemen Mutasi Penduduk
+Sistem pencatatan dinamika kependudukan yang mencakup 4 jenis peristiwa:
+1. **Kelahiran**: Mencatat data bayi yang baru lahir (menambah data penduduk baru).
+2. **Kematian**: Mencatat warga yang meninggal dunia (mengubah status penduduk).
+3. **Kedatangan**: Mencatat warga yang baru pindah masuk ke desa.
+4. **Kepindahan**: Mencatat warga yang pindah keluar dari desa.
+- **Riwayat Mutasi**: Melihat, mengedit, dan menghapus data riwayat mutasi yang telah tercatat.
+
+### E. Manajemen Profil Website
+Admin memiliki kontrol penuh atas konten yang tampil di halaman depan:
+- **Edit Profil Desa**: Mengubah deskripsi, visi, misi, dan informasi desa lainnya.
+- **Kelola Perangkat Desa**: Menambah, mengubah urutan, mengedit, atau menghapus data perangkat desa.
+- **Kelola Lembaga Desa**: Menambah, mengedit, atau menghapus data lembaga desa.
+- **Kelola Galeri**: Mengunggah foto baru ke galeri atau menghapus foto yang sudah ada.
+
+## 3. Data yang Dikelola (Database)
+Sistem ini mengelola basis data yang meliputi:
+- Data Pengguna (Admin)
+- Data Kartu Keluarga (KK)
+- Data Penduduk (NIK, Nama, Status, dll)
+- Data Mutasi (Lahir, Mati, Pindah, Datang)
+- Data Profil Desa
+- Data Perangkat & Lembaga Desa
+- Data Galeri Foto
+
+## 4. Teknologi
+- **Framework**: Laravel (PHP)
+- **Database**: MySQL
