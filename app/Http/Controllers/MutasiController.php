@@ -13,10 +13,16 @@ class MutasiController extends Controller
     public function index(Request $request)
     {
         $year = $request->input('year', date('Y'));
+        $jenisMutasi = $request->input('jenis_mutasi');
         
-        $mutasis = Mutasi::with('penduduk.kartuKeluarga')
-            ->whereYear('tanggal_mutasi', $year)
-            ->latest('tanggal_mutasi')
+        $query = Mutasi::with('penduduk.kartuKeluarga')
+            ->whereYear('tanggal_mutasi', $year);
+
+        if ($jenisMutasi) {
+            $query->where('jenis_mutasi', $jenisMutasi);
+        }
+
+        $mutasis = $query->latest('tanggal_mutasi')
             ->paginate(20);
 
         // Get distinct years from database
@@ -45,7 +51,8 @@ class MutasiController extends Controller
             'totalLahir',
             'totalMati',
             'totalDatang',
-            'totalPindah'
+            'totalPindah',
+            'jenisMutasi'
         ));
     }
 

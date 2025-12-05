@@ -41,6 +41,13 @@
 
         <div class="d-flex align-items-center gap-2 w-100 w-md-auto justify-content-end">
             <form action="{{ route('mutasi.index') }}" method="GET" class="d-flex align-items-center gap-2">
+                <select name="jenis_mutasi" class="form-select rounded-2 shadow-sm border-0" style="width: 150px; cursor: pointer;" onchange="this.form.submit()">
+                    <option value="">Semua Kategori</option>
+                    <option value="LAHIR" {{ $jenisMutasi == 'LAHIR' ? 'selected' : '' }}>Kelahiran</option>
+                    <option value="MATI" {{ $jenisMutasi == 'MATI' ? 'selected' : '' }}>Kematian</option>
+                    <option value="DATANG" {{ $jenisMutasi == 'DATANG' ? 'selected' : '' }}>Kedatangan</option>
+                    <option value="PINDAH" {{ $jenisMutasi == 'PINDAH' ? 'selected' : '' }}>Kepindahan</option>
+                </select>
                 <select name="year" class="form-select rounded-2 shadow-sm border-0" style="width: 100px; cursor: pointer;" onchange="this.form.submit()">
                     @foreach($years as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
