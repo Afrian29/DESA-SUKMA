@@ -203,8 +203,8 @@
                 <div class="col-12">
                     <div class="chart-card">
                         <h5 class="fw-bold text-primary mb-4">Akses Cepat</h5>
-                        <div class="row g-3">
-                            <div class="col-md-3 col-6">
+                        <div class="row g-3 justify-content-center">
+                            <div class="col-md-4 col-6">
                                 <a href="{{ route('penduduk.create') }}" class="btn btn-light w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-2 border hover-shadow text-decoration-none">
                                     <div class="bg-primary-subtle text-primary rounded-circle p-2">
                                         <i data-lucide="user-plus" style="width: 20px;"></i>
@@ -212,23 +212,15 @@
                                     <span class="small fw-bold text-dark">Tambah Penduduk</span>
                                 </a>
                             </div>
-                            <div class="col-md-3 col-6">
-                                <a href="{{ route('mutasi.create') }}" class="btn btn-light w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-2 border hover-shadow text-decoration-none" onclick="localStorage.setItem('mutasiTab', 'lahir')">
-                                    <div class="bg-info-subtle text-info rounded-circle p-2">
-                                        <i data-lucide="baby" style="width: 20px;"></i>
-                                    </div>
-                                    <span class="small fw-bold text-dark">Lapor Kelahiran</span>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-6">
+                            <div class="col-md-4 col-6">
                                 <a href="{{ route('mutasi.create') }}" class="btn btn-light w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-2 border hover-shadow text-decoration-none">
-                                    <div class="bg-danger-subtle text-danger rounded-circle p-2">
-                                        <i data-lucide="skull" style="width: 20px;"></i>
+                                    <div class="bg-info-subtle text-info rounded-circle p-2">
+                                        <i data-lucide="clipboard-plus" style="width: 20px;"></i>
                                     </div>
-                                    <span class="small fw-bold text-dark">Lapor Kematian</span>
+                                    <span class="small fw-bold text-dark">Tambah Mutasi</span>
                                 </a>
                             </div>
-                            <div class="col-md-3 col-6">
+                            <div class="col-md-4 col-6">
                                 <a href="{{ route('mutasi.index') }}" class="btn btn-light w-100 py-3 d-flex flex-column align-items-center gap-2 rounded-2 border hover-shadow text-decoration-none">
                                     <div class="bg-warning-subtle text-warning rounded-circle p-2">
                                         <i data-lucide="file-text" style="width: 20px;"></i>
