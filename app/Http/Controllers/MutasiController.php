@@ -121,6 +121,32 @@ class MutasiController extends Controller
             'status_hubungan_dalam_keluarga.*' => 'required|string',
         ]);
 
+        // VALIDATION: Single Head of Family Check
+        $headsInInput = 0;
+        if ($request->status_hubungan_dalam_keluarga) {
+            foreach ($request->status_hubungan_dalam_keluarga as $status) {
+                if ($status === 'KEPALA KELUARGA') {
+                    $headsInInput++;
+                }
+            }
+        }
+        
+        if ($headsInInput > 1) {
+            return back()->withInput()->withErrors(['status_hubungan_dalam_keluarga' => 'Dalam satu penambahan data, hanya boleh ada 1 Kepala Keluarga.']);
+        }
+
+        if ($headsInInput === 1) {
+            // Check if KK already has a head (only if KK exists)
+            $existingHead = \App\Models\Penduduk::where('no_kk', $request->no_kk)
+                ->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')
+                ->where('status_dasar', 'HIDUP')
+                ->exists();
+
+            if ($existingHead) {
+                return back()->withInput()->withErrors(['no_kk' => 'Nomor KK ini sudah memiliki Kepala Keluarga. Tidak bisa menambahkan Kepala Keluarga baru.']);
+            }
+        }
+
         DB::transaction(function () use ($request) {
             $kk = KartuKeluarga::firstOrCreate(
                 ['no_kk' => $request->no_kk],

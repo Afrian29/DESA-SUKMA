@@ -319,6 +319,9 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    // Global state for KK Head
+    window.currentKKHasHead = false;
+
     // Define functions globally to ensure they are accessible by onclick handlers
     window.calculateAge = function(input, targetId) {
         if (!input.value) return;
@@ -359,6 +362,38 @@
         }
     }
     
+    window.updateRelationshipOptions = function() {
+        const selects = document.querySelectorAll('select[name="status_hubungan_dalam_keluarga[]"]');
+        selects.forEach(select => {
+            const currentValue = select.value;
+            // Clear options
+            select.innerHTML = '';
+            
+            // Add options based on state
+            const options = [
+                { value: 'KEPALA KELUARGA', label: 'KEPALA KELUARGA', disabled: window.currentKKHasHead },
+                { value: 'ISTRI', label: 'ISTRI', disabled: false },
+                { value: 'ANAK', label: 'ANAK', disabled: false },
+                { value: 'FAMILI LAIN', label: 'FAMILI LAIN', disabled: false }
+            ];
+            
+            options.forEach(opt => {
+                if (opt.disabled) return; // Skip disabled options (remove them entirely)
+                
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                if (opt.value === currentValue) option.selected = true;
+                select.appendChild(option);
+            });
+            
+            // If current value was removed, select the first available
+            if (window.currentKKHasHead && currentValue === 'KEPALA KELUARGA') {
+                select.value = 'ISTRI'; // Default fallback
+            }
+        });
+    }
+
     window.addMemberRow = function() {
         const container = document.getElementById('membersContainer');
         if (!container) {
@@ -370,6 +405,18 @@
         
         const row = document.createElement('div');
         row.className = 'member-row bg-light rounded-2 p-3 mb-3 position-relative border';
+        
+        // Build options HTML dynamically
+        let optionsHtml = '';
+        if (!window.currentKKHasHead) {
+            optionsHtml += '<option value="KEPALA KELUARGA">KEPALA KELUARGA</option>';
+        }
+        optionsHtml += `
+            <option value="ISTRI">ISTRI</option>
+            <option value="ANAK">ANAK</option>
+            <option value="FAMILI LAIN">FAMILI LAIN</option>
+        `;
+
         row.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="badge bg-success rounded-pill px-3 py-2">Anggota ${rowCount}</span>
@@ -424,15 +471,16 @@
                 <div class="col-md-4">
                     <label class="small fw-bold text-secondary">Status Hubungan</label>
                     <select class="form-select border-0 shadow-sm" name="status_hubungan_dalam_keluarga[]" required>
-                        <option value="KEPALA KELUARGA">KEPALA KELUARGA</option>
-                        <option value="ISTRI">ISTRI</option>
-                        <option value="ANAK">ANAK</option>
-                        <option value="FAMILI LAIN">FAMILI LAIN</option>
+                        ${optionsHtml}
                     </select>
                 </div>
             </div>
         `;
         container.appendChild(row);
+        
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     }
 
     window.removeMemberRow = function(btn) {
@@ -452,6 +500,28 @@
         const searchInput = $('#searchKK');
         const resultsContainer = $('#searchResults');
         let searchTimeout;
+
+        function checkKKStatus(no_kk) {
+            if (no_kk.length < 16) return;
+            
+            $.ajax({
+                url: '{{ route("api.kk.search") }}',
+                data: { q: no_kk },
+                success: function(data) {
+                    // Find exact match
+                    const exactMatch = data.find(k => k.no_kk === no_kk);
+                    if (exactMatch) {
+                        // Check if it has a head
+                        const hasHead = exactMatch.kepala_keluarga && exactMatch.kepala_keluarga !== '-' && exactMatch.kepala_keluarga !== 'TBD';
+                        window.currentKKHasHead = !!hasHead;
+                    } else {
+                        // New KK, assume no head yet
+                        window.currentKKHasHead = false;
+                    }
+                    window.updateRelationshipOptions();
+                }
+            });
+        }
 
         if (searchInput.length) {
             searchInput.on('input', function() {
@@ -496,6 +566,13 @@
                     });
                 }, 300);
             });
+            
+            // Handle manual input blur
+            searchInput.on('blur', function() {
+                setTimeout(() => {
+                    checkKKStatus($(this).val());
+                }, 200);
+            });
 
             $(document).on('click', '.search-item', function() {
                 const kk = $(this).data('kk');
@@ -508,6 +585,11 @@
                 $('input[name="pemakaian_air"]').val(kk.pemakaian_air);
                 $('input[name="jenis_bantuan"]').val(kk.jenis_bantuan);
                 
+                // Update Head Status
+                const hasHead = kk.kepala_keluarga && kk.kepala_keluarga !== '-' && kk.kepala_keluarga !== 'TBD';
+                window.currentKKHasHead = !!hasHead;
+                window.updateRelationshipOptions();
+
                 // Hide results
                 resultsContainer.hide();
             });

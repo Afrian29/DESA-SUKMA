@@ -113,6 +113,25 @@ class PendudukController extends Controller
             'anggota.*.status_hubungan_dalam_keluarga' => 'required|string',
         ]);
 
+        // VALIDATION: Single Head of Family Check
+        $headsInInput = collect($request->anggota)->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')->count();
+        
+        if ($headsInInput > 1) {
+            return back()->withInput()->withErrors(['anggota' => 'Dalam satu penambahan data, hanya boleh ada 1 Kepala Keluarga.']);
+        }
+
+        if ($headsInInput === 1) {
+            // Check if KK already has a head (only if KK exists)
+            $existingHead = \App\Models\Penduduk::where('no_kk', $request->no_kk)
+                ->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')
+                ->where('status_dasar', 'HIDUP')
+                ->exists();
+
+            if ($existingHead) {
+                return back()->withInput()->withErrors(['no_kk' => 'Nomor KK ini sudah memiliki Kepala Keluarga. Tidak bisa menambahkan Kepala Keluarga baru.']);
+            }
+        }
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
             // 1. Find or Create Kartu Keluarga
             $kk = \App\Models\KartuKeluarga::firstOrCreate(
@@ -190,6 +209,21 @@ class PendudukController extends Controller
             'no_kk' => 'required|numeric|digits:16',
             'dusun' => 'required|string',
         ]);
+
+        // VALIDATION: Single Head of Family Check
+        if ($request->status_hubungan_dalam_keluarga === 'KEPALA KELUARGA') {
+            // Check if KK already has a head (excluding this person)
+            // Note: We use request->no_kk because the person might be moving to a new KK
+            $existingHead = \App\Models\Penduduk::where('no_kk', $request->no_kk)
+                ->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')
+                ->where('status_dasar', 'HIDUP')
+                ->where('nik', '!=', $nik) // Exclude self
+                ->exists();
+
+            if ($existingHead) {
+                return back()->withInput()->withErrors(['status_hubungan_dalam_keluarga' => 'Nomor KK ini sudah memiliki Kepala Keluarga.']);
+            }
+        }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($request, $penduduk) {
             // Update KK info if needed (optional, depending on requirements. 
