@@ -94,7 +94,7 @@
                 <select name="usia" id="usia-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;">
                     <option value="">Pilih Usia</option>
                     @foreach($ageList as $age)
-                        <option value="{{ $age }}" {{ request('usia') == $age ? 'selected' : '' }}>{{ $age }} Tahun</option>
+                        <option value="{{ $age }}" {{ (string)request('usia') === (string)$age ? 'selected' : '' }}>{{ $age }} Tahun</option>
                     @endforeach
                 </select>
 
@@ -364,7 +364,7 @@
             
             if (dusun) url.searchParams.set('dusun', dusun); else url.searchParams.delete('dusun');
             if (search) url.searchParams.set('search', search); else url.searchParams.delete('search');
-            if (usia) url.searchParams.set('usia', usia); else url.searchParams.delete('usia');
+            if (usia !== '') url.searchParams.set('usia', usia); else url.searchParams.delete('usia');
             if (pekerjaan) url.searchParams.set('pekerjaan', pekerjaan); else url.searchParams.delete('pekerjaan');
             
             // Check if stats panel is open

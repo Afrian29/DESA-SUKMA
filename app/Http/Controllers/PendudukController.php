@@ -23,7 +23,7 @@ class PendudukController extends Controller
         }
 
         // Filter by Specific Age
-        if (request('usia')) {
+        if (request()->has('usia') && request('usia') !== null && request('usia') !== '') {
             $age = request('usia');
             $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) = ?', [$age]);
         }
