@@ -205,6 +205,47 @@
             background-color: rgba(11, 47, 94, 0.1);
             font-weight: 600;
         }
+        /* Custom Profile Tabs */
+        .profile-tabs {
+            background-color: white;
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center; /* Center align items */
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+            margin-bottom: 1.5rem;
+        }
+        .profile-tabs::-webkit-scrollbar {
+            display: none; /* Hide scrollbar Chrome/Safari */
+        }
+        .profile-tab-link {
+            color: #64748b;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center content within the full-width tab */
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            flex: 1; /* Make tabs fill available space */
+        }
+        .profile-tab-link:hover {
+            color: var(--bs-primary);
+            background-color: rgba(11, 47, 94, 0.05);
+        }
+        .profile-tab-link.active {
+            background-color: var(--bs-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(11, 47, 94, 0.15);
+        }
     </style>
 </head>
 <body>

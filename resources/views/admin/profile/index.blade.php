@@ -23,31 +23,22 @@
         </div>
     @endif
 
+    <div class="profile-tabs" id="profileTabs" role="tablist">
+        <button class="profile-tab-link active" id="kades-tab" data-bs-toggle="tab" data-bs-target="#kades" type="button" role="tab">
+            <i data-lucide="user" style="width: 18px;"></i> Profil & Sambutan
+        </button>
+        <button class="profile-tab-link" id="aparat-tab" data-bs-toggle="tab" data-bs-target="#aparat" type="button" role="tab">
+            <i data-lucide="users" style="width: 18px;"></i> Aparat Desa
+        </button>
+        <button class="profile-tab-link" id="lembaga-tab" data-bs-toggle="tab" data-bs-target="#lembaga" type="button" role="tab">
+            <i data-lucide="building-2" style="width: 18px;"></i> Lembaga Desa
+        </button>
+        <button class="profile-tab-link" id="galeri-tab" data-bs-toggle="tab" data-bs-target="#galeri" type="button" role="tab">
+            <i data-lucide="image" style="width: 18px;"></i> Galeri
+        </button>
+    </div>
+
     <div class="card border-0 shadow-sm rounded-2">
-        <div class="card-header bg-white border-0 pt-4 px-3 px-md-4">
-            <ul class="nav nav-pills nav-fill flex-column flex-sm-row gap-2 p-1 bg-light rounded-2" id="profileTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-1 active fw-bold text-start text-sm-center" id="kades-tab" data-bs-toggle="tab" data-bs-target="#kades" type="button" role="tab">
-                        <i data-lucide="user" class="me-2" style="width: 18px;"></i> Profil & Sambutan
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-1 fw-bold text-start text-sm-center" id="aparat-tab" data-bs-toggle="tab" data-bs-target="#aparat" type="button" role="tab">
-                        <i data-lucide="users" class="me-2" style="width: 18px;"></i> Aparat Desa
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-1 fw-bold text-start text-sm-center" id="lembaga-tab" data-bs-toggle="tab" data-bs-target="#lembaga" type="button" role="tab">
-                        <i data-lucide="building-2" class="me-2" style="width: 18px;"></i> Lembaga Desa
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-1 fw-bold text-start text-sm-center" id="galeri-tab" data-bs-toggle="tab" data-bs-target="#galeri" type="button" role="tab">
-                        <i data-lucide="image" class="me-2" style="width: 18px;"></i> Galeri
-                    </button>
-                </li>
-            </ul>
-        </div>
         <div class="card-body p-3 p-md-4">
             <div class="tab-content" id="profileTabsContent">
                 
