@@ -28,6 +28,8 @@ class ProfileController extends Controller
             'sambutan_title' => 'required|string|max:255',
             'sambutan_content' => 'required|string',
             'kades_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'luas_wilayah' => 'nullable|string|max:255',
+            'umkm_count' => 'nullable|integer|min:0',
         ]);
 
         $profile = VillageProfile::firstOrNew();
@@ -35,6 +37,8 @@ class ProfileController extends Controller
         $profile->sambutan_title = $request->sambutan_title;
         $profile->sambutan_content = $request->sambutan_content;
         $profile->video_url = $request->video_url;
+        $profile->luas_wilayah = $request->luas_wilayah;
+        $profile->umkm_count = $request->umkm_count;
 
         if ($request->hasFile('kades_photo')) {
             // Hapus foto lama jika ada

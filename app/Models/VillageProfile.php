@@ -15,5 +15,7 @@ class VillageProfile extends Model
         'sambutan_title',
         'sambutan_content',
         'video_url',
+        'luas_wilayah',
+        'umkm_count',
     ];
 }

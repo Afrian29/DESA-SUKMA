@@ -438,7 +438,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
                                 <small class="text-muted fw-bold text-uppercase">Total Penduduk</small>
-                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">2.450</h2>
+                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ number_format($totalPenduduk, 0, ',', '.') }}</h2>
                             </div>
                             <div class="icon-box bg-blue-soft">
                                 <i data-lucide="users"></i>
@@ -447,7 +447,7 @@
                         <div class="progress" style="height: 6px;">
                             <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
                         </div>
-                        <small class="text-muted d-block text-end mt-2">Update: Jan 2025</small>
+                        <small class="text-muted d-block text-end mt-2">Update: {{ date('M Y') }}</small>
                     </div>
                 </div>
                 
@@ -457,7 +457,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
                                 <small class="text-muted fw-bold text-uppercase">Luas Wilayah</small>
-                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">145 <span class="fs-5 text-muted">Ha</span></h2>
+                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ optional($profile)->luas_wilayah ?? '0' }} <span class="fs-5 text-muted">Ha</span></h2>
                             </div>
                             <div class="icon-box bg-yellow-soft">
                                 <i data-lucide="map"></i>
@@ -476,7 +476,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
                                 <small class="text-muted fw-bold text-uppercase">Unit UMKM</small>
-                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">32</h2>
+                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ optional($profile)->umkm_count ?? '0' }}</h2>
                             </div>
                             <div class="icon-box bg-blue-soft">
                                 <i data-lucide="shopping-bag"></i>

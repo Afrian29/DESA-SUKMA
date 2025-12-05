@@ -90,6 +90,20 @@
                                     <label class="form-label fw-bold">Link Video Profil (YouTube Embed URL)</label>
                                     <input type="url" name="video_url" class="form-control" value="{{ optional($profile)->video_url }}" placeholder="https://www.youtube.com/embed/...">
                                 </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Luas Wilayah (Ha)</label>
+                                            <input type="text" name="luas_wilayah" class="form-control" value="{{ optional($profile)->luas_wilayah }}" placeholder="Contoh: 145">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Jumlah UMKM</label>
+                                            <input type="number" name="umkm_count" class="form-control" value="{{ optional($profile)->umkm_count }}" placeholder="Contoh: 32">
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-primary px-4 fw-bold">
                                         <i data-lucide="save" class="me-2" style="width: 18px;"></i> Simpan Perubahan

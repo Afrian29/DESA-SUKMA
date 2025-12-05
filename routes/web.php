@@ -9,14 +9,16 @@ use App\Models\VillageProfile;
 use App\Models\Official;
 use App\Models\Institution;
 use App\Models\Gallery;
+use App\Models\Penduduk;
 
 Route::get('/', function () {
     $profile = VillageProfile::first();
     $officials = Official::orderBy('order')->get();
     $institutions = Institution::all();
     $galleries = Gallery::latest()->get();
+    $totalPenduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
 
-    return view('home', compact('profile', 'officials', 'institutions', 'galleries'));
+    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {
