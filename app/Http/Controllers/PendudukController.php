@@ -10,12 +10,25 @@ class PendudukController extends Controller
     {
         $query = \App\Models\Penduduk::with('kartuKeluarga')->where('status_dasar', 'HIDUP');
 
+        // Filter by Dusun
         if (request('dusun')) {
             $query->whereHas('kartuKeluarga', function ($q) {
                 $q->where('dusun', request('dusun'));
             });
         }
 
+        // Filter by Pekerjaan
+        if (request('pekerjaan')) {
+            $query->where('pekerjaan', request('pekerjaan'));
+        }
+
+        // Filter by Specific Age
+        if (request('usia')) {
+            $age = request('usia');
+            $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) = ?', [$age]);
+        }
+
+        // Search
         if (request('search')) {
             $search = request('search');
             $query->where(function($q) use ($search) {
@@ -24,6 +37,7 @@ class PendudukController extends Controller
             });
         }
 
+        // Get Data for Table
         $penduduks = $query->orderBy('no_kk')
             ->orderByRaw("CASE status_hubungan_dalam_keluarga 
                 WHEN 'KEPALA KELUARGA' THEN 1 
@@ -36,22 +50,49 @@ class PendudukController extends Controller
                 ELSE 8 END")
             ->paginate(10);
 
+        // --- STATISTICS CALCULATION (Based on current filters) ---
+        $statsQuery = clone $query;
 
-
-        // Calculate Summary (Filtered by Dusun only, ignoring search for broader context)
-        $summaryQuery = \App\Models\Penduduk::where('status_dasar', 'HIDUP');
-        
-        if (request('dusun')) {
-            $summaryQuery->whereHas('kartuKeluarga', function ($q) {
-                $q->where('dusun', request('dusun'));
-            });
-        }
-
-        $totalLaki = (clone $summaryQuery)->where('jenis_kelamin', 'L')->count();
-        $totalPerempuan = (clone $summaryQuery)->where('jenis_kelamin', 'P')->count();
+        // 1. Gender Stats
+        $totalLaki = (clone $statsQuery)->where('jenis_kelamin', 'L')->count();
+        $totalPerempuan = (clone $statsQuery)->where('jenis_kelamin', 'P')->count();
         $totalPenduduk = $totalLaki + $totalPerempuan;
 
-        return view('admin.penduduk.index', compact('penduduks', 'totalLaki', 'totalPerempuan', 'totalPenduduk'));
+        // 2. Age Stats (Specific Ages)
+        // Group by calculated age
+        $ageStats = (clone $statsQuery)
+            ->select(\Illuminate\Support\Facades\DB::raw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) as age'), \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('age')
+            ->orderBy('age')
+            ->get()
+            ->pluck('total', 'age');
+
+        // 3. Job Stats (Top 5 + Others)
+        $jobStats = (clone $statsQuery)
+            ->select('pekerjaan', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('pekerjaan')
+            ->orderByDesc('total')
+            ->get();
+
+        // Get List of Jobs for Dropdown (Global)
+        $pekerjaanList = \App\Models\Penduduk::distinct()->pluck('pekerjaan')->sort()->values();
+
+        // Get List of Ages for Dropdown (Global)
+        $ageList = \App\Models\Penduduk::select(\Illuminate\Support\Facades\DB::raw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) as age'))
+            ->distinct()
+            ->orderBy('age')
+            ->pluck('age');
+
+        return view('admin.penduduk.index', compact(
+            'penduduks', 
+            'totalLaki', 
+            'totalPerempuan', 
+            'totalPenduduk',
+            'ageStats',
+            'jobStats',
+            'pekerjaanList',
+            'ageList'
+        ));
     }
 
     public function create()

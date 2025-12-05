@@ -5,38 +5,110 @@
 
 @section('content')
 <div class="container-fluid p-0">
-    <div class="d-flex justify-content-between align-items-center mb-4" id="toolbar-container">
-        <!-- Summary Section -->
-        <div class="d-flex align-items-center gap-3 text-secondary bg-white px-3 py-2 rounded-2 shadow-sm border">
-            <div class="d-flex align-items-center gap-2" title="Total Penduduk">
-                <i data-lucide="users" style="width: 16px;" class="text-primary"></i>
-                <span class="text-dark" id="summary-total">{{ $totalPenduduk }}</span>
-            </div>
-            <div class="vr opacity-25"></div>
-            <div class="d-flex align-items-center gap-2" title="Laki-laki">
-                <span class="badge bg-info-subtle text-info rounded-1 px-2" style="font-size: 0.7rem;">L</span>
-                <span class="text-dark" id="summary-laki">{{ $totalLaki }}</span>
-            </div>
-            <div class="d-flex align-items-center gap-2" title="Perempuan">
-                <span class="badge bg-danger-subtle text-danger rounded-1 px-2" style="font-size: 0.7rem;">P</span>
-                <span class="text-dark" id="summary-perempuan">{{ $totalPerempuan }}</span>
+    <div class="d-flex flex-column gap-3 mb-4" id="toolbar-container">
+        <!-- Statistics Panel (Collapsible) -->
+        <div class="collapse {{ request('show_stats') ? 'show' : '' }}" id="statsPanel">
+            <div class="card border-0 shadow-sm rounded-2 bg-white mb-3">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-primary m-0"><i data-lucide="bar-chart-2" style="width: 18px;" class="me-2"></i> Statistik Penduduk (Berdasarkan Filter)</h6>
+                        <button type="button" class="btn-close small" data-bs-toggle="collapse" data-bs-target="#statsPanel"></button>
+                    </div>
+                    <div class="row g-4">
+                        <!-- Gender Stats -->
+                        <div class="col-md-3 border-end">
+                            <small class="text-uppercase fw-bold text-secondary d-block mb-2" style="font-size: 0.7rem;">Jenis Kelamin</small>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="text-dark small">Laki-laki</span>
+                                <span class="badge bg-info-subtle text-info rounded-1">{{ $totalLaki }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-dark small">Perempuan</span>
+                                <span class="badge bg-danger-subtle text-danger rounded-1">{{ $totalPerempuan }}</span>
+                            </div>
+                            <div class="mt-2 pt-2 border-top d-flex justify-content-between">
+                                <span class="fw-bold small text-dark">Total</span>
+                                <span class="fw-bold text-primary">{{ $totalPenduduk }}</span>
+                            </div>
+                        </div>
+                        <!-- Age Stats -->
+                        <div class="col-md-5 border-end">
+                            <small class="text-uppercase fw-bold text-secondary d-block mb-2" style="font-size: 0.7rem;">Usia (Tahun)</small>
+                            <div class="row g-2 overflow-auto" style="max-height: 150px;">
+                                @foreach($ageStats as $age => $count)
+                                <div class="col-4">
+                                    <div class="d-flex align-items-center justify-content-between border rounded px-2 py-1">
+                                        <span class="text-dark small">{{ $age }} Thn</span>
+                                        <span class="badge bg-light text-dark border">{{ $count }}</span>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <!-- Job Stats -->
+                        <div class="col-md-4">
+                            <small class="text-uppercase fw-bold text-secondary d-block mb-2" style="font-size: 0.7rem;">Pekerjaan Terbanyak</small>
+                            <div class="d-flex flex-column gap-1">
+                                @foreach($jobStats->take(5) as $stat)
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="text-dark small text-truncate" style="max-width: 180px;" title="{{ $stat->pekerjaan }}">{{ $stat->pekerjaan }}</span>
+                                    <span class="badge bg-white text-dark border">{{ $stat->total }}</span>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <div class="position-relative">
-                <input type="text" name="search" id="search-input" class="form-control rounded-2 shadow-sm border-0 ps-5" placeholder="Cari Nama atau NIK..." value="{{ request('search') }}" style="width: 250px;">
-                <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 18px;"></i>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <!-- Left Side: Summary & Stats Toggle -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-primary d-flex align-items-center gap-2 rounded-2 shadow-sm bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#statsPanel">
+                    <i data-lucide="bar-chart-2" style="width: 18px;"></i> Statistik
+                </button>
+                <div class="vr opacity-25 mx-2"></div>
+                <div class="d-flex align-items-center gap-3 text-secondary bg-white px-3 py-2 rounded-2 shadow-sm border">
+                    <div class="d-flex align-items-center gap-2" title="Total Penduduk">
+                        <i data-lucide="users" style="width: 16px;" class="text-primary"></i>
+                        <span class="text-dark fw-bold">{{ $totalPenduduk }}</span>
+                    </div>
+                </div>
             </div>
-            <select name="dusun" id="dusun-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 150px; cursor: pointer;">
-                <option value="">Semua Dusun</option>
-                <option value="Dusun 1" {{ request('dusun') == 'Dusun 1' ? 'selected' : '' }}>Dusun 1</option>
-                <option value="Dusun 2" {{ request('dusun') == 'Dusun 2' ? 'selected' : '' }}>Dusun 2</option>
-                <option value="Dusun 3" {{ request('dusun') == 'Dusun 3' ? 'selected' : '' }}>Dusun 3</option>
-            </select>
-            <a href="{{ route('penduduk.create') }}" class="btn btn-primary d-flex align-items-center gap-2 rounded-2 px-4 shadow-sm">
-                <i data-lucide="plus" style="width: 18px;"></i> Tambah Penduduk
-            </a>
+
+            <!-- Right Side: Filters & Actions -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="position-relative">
+                    <input type="text" name="search" id="search-input" class="form-control rounded-2 shadow-sm border-0 ps-5" placeholder="Cari Nama/NIK..." value="{{ request('search') }}" style="width: 200px;">
+                    <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 18px;"></i>
+                </div>
+                
+                <select name="dusun" id="dusun-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;">
+                    <option value="">Semua Dusun</option>
+                    <option value="Dusun 1" {{ request('dusun') == 'Dusun 1' ? 'selected' : '' }}>Dusun 1</option>
+                    <option value="Dusun 2" {{ request('dusun') == 'Dusun 2' ? 'selected' : '' }}>Dusun 2</option>
+                    <option value="Dusun 3" {{ request('dusun') == 'Dusun 3' ? 'selected' : '' }}>Dusun 3</option>
+                </select>
+
+                <select name="usia" id="usia-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;">
+                    <option value="">Pilih Usia</option>
+                    @foreach($ageList as $age)
+                        <option value="{{ $age }}" {{ request('usia') == $age ? 'selected' : '' }}>{{ $age }} Tahun</option>
+                    @endforeach
+                </select>
+
+                <select name="pekerjaan" id="pekerjaan-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 140px; cursor: pointer;">
+                    <option value="">Semua Pekerjaan</option>
+                    @foreach($pekerjaanList as $job)
+                        <option value="{{ $job }}" {{ request('pekerjaan') == $job ? 'selected' : '' }}>{{ $job }}</option>
+                    @endforeach
+                </select>
+
+                <a href="{{ route('penduduk.create') }}" class="btn btn-primary d-flex align-items-center gap-2 rounded-2 px-3 shadow-sm">
+                    <i data-lucide="plus" style="width: 18px;"></i> <span class="d-none d-md-inline">Tambah</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -280,31 +352,33 @@
         });
 
         // AJAX Filter & Search Logic
-        const filterSelect = document.getElementById('dusun-filter');
-        const searchInput = document.getElementById('search-input');
         let searchTimeout;
 
         function fetchData() {
-            const dusun = document.getElementById('dusun-filter').value;
-            const search = document.getElementById('search-input').value;
+            const dusun = document.getElementById('dusun-filter') ? document.getElementById('dusun-filter').value : '';
+            const search = document.getElementById('search-input') ? document.getElementById('search-input').value : '';
+            const usia = document.getElementById('usia-filter') ? document.getElementById('usia-filter').value : '';
+            const pekerjaan = document.getElementById('pekerjaan-filter') ? document.getElementById('pekerjaan-filter').value : '';
+            
             const url = new URL(window.location.href);
             
-            if (dusun) {
-                url.searchParams.set('dusun', dusun);
+            if (dusun) url.searchParams.set('dusun', dusun); else url.searchParams.delete('dusun');
+            if (search) url.searchParams.set('search', search); else url.searchParams.delete('search');
+            if (usia) url.searchParams.set('usia', usia); else url.searchParams.delete('usia');
+            if (pekerjaan) url.searchParams.set('pekerjaan', pekerjaan); else url.searchParams.delete('pekerjaan');
+            
+            // Check if stats panel is open
+            const statsPanel = document.getElementById('statsPanel');
+            const isStatsOpen = statsPanel && statsPanel.classList.contains('show');
+            if (isStatsOpen) {
+                url.searchParams.set('show_stats', '1');
             } else {
-                url.searchParams.delete('dusun');
+                url.searchParams.delete('show_stats');
             }
 
-            if (search) {
-                url.searchParams.set('search', search);
-            } else {
-                url.searchParams.delete('search');
-            }
-            
             // Reset to page 1 when filtering
             url.searchParams.delete('page');
 
-            // Add loading state opacity
             const card = document.getElementById('penduduk-card');
 
             fetch(url)
@@ -319,9 +393,15 @@
                     if (newContentElement && card) {
                         card.innerHTML = newContentElement.innerHTML;
                         
-                        // Update Toolbar (Summary)
+                        // Update Toolbar (Summary & Stats)
                         if (newToolbarElement && toolbar) {
                             toolbar.innerHTML = newToolbarElement.innerHTML;
+                            
+                            // Restore Stats Panel State
+                            const newStatsPanel = document.getElementById('statsPanel');
+                            if (isStatsOpen && newStatsPanel) {
+                                newStatsPanel.classList.add('show');
+                            }
                         }
 
                         // Re-initialize icons
@@ -332,48 +412,45 @@
                         // Update URL without reload
                         window.history.pushState({}, '', url);
                         
-                        // Re-attach event listeners for search and filter since they were replaced
-                        // Note: Since we replaced the entire toolbar, we need to re-attach listeners to the NEW elements
-                        const newFilterSelect = document.getElementById('dusun-filter');
+                        // Re-attach event listeners
+                        attachListeners();
+                        
+                        // Restore focus to search input
                         const newSearchInput = document.getElementById('search-input');
-                        
-                        if (newFilterSelect) {
-                            newFilterSelect.addEventListener('change', fetchData);
-                            // Restore focus if needed, though usually not for select
-                        }
-                        
                         if (newSearchInput) {
-                            newSearchInput.addEventListener('input', function() {
-                                clearTimeout(searchTimeout);
-                                searchTimeout = setTimeout(fetchData, 300);
-                            });
-                            // Restore focus and cursor position
                             newSearchInput.focus();
                             newSearchInput.setSelectionRange(newSearchInput.value.length, newSearchInput.value.length);
                         }
 
                     } else {
                         console.error('Failed to parse response or find element');
-                        // Optional: reload page as fallback
-                        // window.location.reload();
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    // alert('Terjadi kesalahan saat memuat data.');
                 });
         }
 
-        if (filterSelect) {
-            filterSelect.addEventListener('change', fetchData);
+        function attachListeners() {
+            const dusunFilter = document.getElementById('dusun-filter');
+            const usiaFilter = document.getElementById('usia-filter');
+            const pekerjaanFilter = document.getElementById('pekerjaan-filter');
+            const searchInput = document.getElementById('search-input');
+
+            if (dusunFilter) dusunFilter.addEventListener('change', fetchData);
+            if (usiaFilter) usiaFilter.addEventListener('change', fetchData);
+            if (pekerjaanFilter) pekerjaanFilter.addEventListener('change', fetchData);
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(fetchData, 300);
+                });
+            }
         }
 
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(fetchData, 300); // Debounce 300ms
-            });
-        }
+        // Initial attachment
+        attachListeners();
     });
 </script>
 @endsection
