@@ -316,35 +316,112 @@
             <div class="d-flex align-items-center gap-3">
                 @yield('header-action')
                 
-                <div class="user-profile">
-                <button class="btn btn-light rounded-circle p-2 shadow-sm me-2 text-secondary">
-                    <i data-lucide="bell" style="width: 20px;"></i>
-                </button>
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle gap-3" data-bs-toggle="dropdown">
-                        <div class="text-end d-none d-md-block">
-                            <span class="d-block fw-bold text-primary small">{{ Auth::user()->name ?? 'Admin' }}</span>
-                            <span class="d-block text-secondary" style="font-size: 0.7rem;">Administrator</span>
-                        </div>
-                        <img src="https://ui-avatars.com/api/?name={{ Auth::user()->name ?? 'Admin' }}&background=FCA311&color=fff" alt="Avatar" class="avatar">
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-2 mt-3 p-2">
-                        <li><a class="dropdown-item rounded-1" href="#">Profile</a></li>
-                        <li><a class="dropdown-item rounded-1" href="#">Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger rounded-1" href="{{ route('logout') }}"
-                               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
+                <div class="user-profile d-flex align-items-center gap-3 text-decoration-none" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#profileModal">
+                    <div class="text-end d-none d-md-block">
+                        <span class="d-block fw-bold text-primary small">{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <span class="d-block text-secondary" style="font-size: 0.7rem;">{{ Auth::user()->role ?? 'Administrator' }}</span>
+                    </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background-color: rgba(11, 47, 94, 0.1);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
                 </div>
             </div>
         </header>
 
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="check-circle" class="text-success" style="width: 18px;"></i>
+                    <div class="fw-medium">{{ session('success') }}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="alert-circle" class="text-danger" style="width: 18px;"></i>
+                    <div class="fw-medium">
+                        <ul class="mb-0 ps-3">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         @yield('content')
     </main>
+
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-body p-0">
+                    <div class="bg-primary p-4 text-center">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-white shadow-sm mb-3" style="width: 80px; height: 80px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <h5 class="fw-bold mb-1 text-white">{{ Auth::user()->name }}</h5>
+                        <p class="text-white-50 small mb-0">{{ Auth::user()->role ?? 'Administrator' }}</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="mb-3">
+                            <label class="small text-muted text-uppercase fw-bold ls-1 mb-1" style="font-size: 0.7rem;">Username</label>
+                            <div class="fw-medium text-dark">{{ Auth::user()->username }}</div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="small text-muted text-uppercase fw-bold ls-1 mb-1" style="font-size: 0.7rem;">Email</label>
+                            <div class="fw-medium text-dark">{{ Auth::user()->email }}</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill fw-bold w-50" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-primary rounded-pill fw-bold w-50" data-bs-target="#editProfileModal" data-bs-toggle="modal">Edit Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-0 bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Edit Profil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form action="{{ route('admin.user.update') }}" method="POST" id="updateProfileForm">
+                        @csrf
+                        @method('PUT')
+                        <div id="modalAlertContainer"></div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold ls-1">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control rounded-3" value="{{ Auth::user()->name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold ls-1">Username</label>
+                            <input type="text" name="username" class="form-control rounded-3" value="{{ Auth::user()->username }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold ls-1">Email</label>
+                            <input type="email" name="email" class="form-control rounded-3" value="{{ Auth::user()->email }}" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill fw-bold px-4" data-bs-target="#profileModal" data-bs-toggle="modal">Kembali</button>
+                    <button type="submit" form="updateProfileForm" class="btn btn-primary rounded-pill fw-bold px-4">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         lucide.createIcons();

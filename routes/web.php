@@ -51,12 +51,19 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Forgot Password Routes
+    Route::get('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\ForgotPasswordController::class, 'reset'])->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::put('/admin/user/update', [AdminController::class, 'updateUserProfile'])->name('admin.user.update');
     Route::get('/admin/api/kk/search', [\App\Http\Controllers\PendudukController::class, 'searchKK'])->name('api.kk.search');
     Route::get('/admin/api/penduduk/search', [\App\Http\Controllers\PendudukController::class, 'search'])->name('api.penduduk.search');
     Route::resource('/admin/penduduk', \App\Http\Controllers\PendudukController::class);
