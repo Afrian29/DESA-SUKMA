@@ -10,6 +10,7 @@ use App\Models\Official;
 use App\Models\Institution;
 use App\Models\Gallery;
 use App\Models\Penduduk;
+use App\Models\Mutasi;
 
 Route::get('/', function () {
     $profile = VillageProfile::first();
@@ -18,7 +19,33 @@ Route::get('/', function () {
     $galleries = Gallery::latest()->get();
     $totalPenduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
 
-    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk'));
+    // Chart Data: Birth & Death per Month for Current Year
+    $currentYear = date('Y');
+    
+    $birthData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $currentYear)
+        ->where('jenis_mutasi', 'LAHIR')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    $deathData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $currentYear)
+        ->where('jenis_mutasi', 'MATI')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    // Prepare arrays for 12 months
+    $birthSeries = [];
+    $deathSeries = [];
+    
+    for ($i = 1; $i <= 12; $i++) {
+        $birthSeries[] = $birthData[$i] ?? 0;
+        $deathSeries[] = $deathData[$i] ?? 0;
+    }
+
+    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'birthSeries', 'deathSeries', 'currentYear'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {

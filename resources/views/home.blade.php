@@ -523,6 +523,38 @@
         </div>
     </section>
 
+    <!-- STATISTIK KEPENDUDUKAN (CHART) -->
+    <section class="py-5 bg-white position-relative">
+        <div class="container py-lg-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5 reveal">
+                    <h6 class="text-accent fw-bold text-uppercase ls-1 mb-2">Data & Fakta</h6>
+                    <h1 class="fw-bold text-primary mb-3">Statistik Kependudukan</h1>
+                    <p class="text-muted lead mb-4">
+                        Data pertumbuhan penduduk Desa Sukma tahun {{ $currentYear }}. 
+                        Grafik ini menampilkan tren angka kelahiran dan kematian secara real-time.
+                    </p>
+                    
+                    <div class="d-flex gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #00E396;"></span>
+                            <span class="fw-bold text-dark">Kelahiran</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #FF4560;"></span>
+                            <span class="fw-bold text-dark">Kematian</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 reveal">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div id="populationChart" style="min-height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- SAMBUTAN KEPALA DESA -->
     <section class="py-5 bg-surface overflow-hidden">
         <div class="container py-lg-5">
@@ -560,9 +592,9 @@
         </div>
     </section>
 
+
+
     <!-- VISI & MISI SECTION -->
-    <!-- VISI & MISI SECTION (Redesigned) -->
-    <!-- VISI & MISI SECTION (Redesigned) -->
     <section id="visi-misi" class="py-5 bg-primary position-relative overflow-hidden min-vh-100 d-flex align-items-center">
         <!-- Background Decor -->
         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at top right, rgba(252, 163, 17, 0.15), transparent 40%);"></div>
@@ -798,10 +830,72 @@
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <script>
         // Initialize Icons
         lucide.createIcons();
+
+        // Population Chart
+        document.addEventListener('DOMContentLoaded', function() {
+            var options = {
+                series: [{
+                    name: 'Kelahiran',
+                    data: @json($birthSeries)
+                }, {
+                    name: 'Kematian',
+                    data: @json($deathSeries)
+                }],
+                chart: {
+                    type: 'area', // or 'line'
+                    height: 350,
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: "'Plus Jakarta Sans', sans-serif"
+                },
+                colors: ['#00E396', '#FF4560'],
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                xaxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'],
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: {
+                    forceNiceScale: true,
+                    min: 0
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.2,
+                        stops: [0, 90, 100]
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + " Jiwa"
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                    strokeDashArray: 4,
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#populationChart"), options);
+            chart.render();
+        });
 
         // Custom ScrollSpy using IntersectionObserver
         document.addEventListener('DOMContentLoaded', function() {
