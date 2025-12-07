@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Official;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class OfficialController extends Controller
 {
@@ -31,7 +32,7 @@ class OfficialController extends Controller
 
         Official::create($data);
 
-        return redirect()->back()->with('success', 'Aparat Desa berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Aparat Desa berhasil ditambahkan.')->with('active_tab', 'aparat');
     }
 
     public function update(Request $request, $id)
@@ -60,7 +61,7 @@ class OfficialController extends Controller
 
         $official->update($data);
 
-        return redirect()->back()->with('success', 'Data Aparat Desa berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data Aparat Desa berhasil diperbarui.')->with('active_tab', 'aparat');
     }
 
     public function destroy($id)
@@ -74,6 +75,6 @@ class OfficialController extends Controller
 
         $official->delete();
 
-        return redirect()->back()->with('success', 'Aparat Desa berhasil dihapus.');
+        return redirect()->back()->with('success', 'Aparat Desa berhasil dihapus.')->with('active_tab', 'aparat');
     }
 }

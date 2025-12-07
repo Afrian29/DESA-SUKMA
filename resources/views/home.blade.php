@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desa Sukma - Demo Profil Desa Modern</title>
+    <link rel="icon" href="{{ asset('images/logo-bone-bolango.png') }}" type="image/x-icon">
     
     <!-- Fonts: Plus Jakarta Sans (Modern & Clean) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -411,8 +412,8 @@
                     </p>
                     
                     <div class="d-flex flex-column flex-sm-row gap-3">
-                        <a href="#" class="btn btn-accent btn-lg">
-                            Jelajahi Desa
+                        <a href="https://youtu.be/dQw4w9WgXcQ?si=FGrmIAv6bZ051dsg" target="_blank" class="btn btn-accent btn-lg d-inline-flex align-items-center gap-2">
+                            <i data-lucide="play-circle" style="width: 20px;"></i> Profil Desa
                         </a>
 
                     </div>
@@ -613,12 +614,8 @@
             <div class="row g-4 justify-content-center">
                 @forelse($institutions as $institution)
                 <div class="col-md-6 col-lg-4 reveal fade-bottom" style="transition-delay: {{ $loop->index * 100 }}ms">
-                    <div class="card h-100 border-0 shadow-sm hover-lift transition-all p-4 rounded-4 text-center group-hover-card bg-white">
-                        <div class="mb-4 d-inline-block position-relative">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-4 transition-transform group-hover-scale">
-                                <i data-lucide="{{ $institution->icon }}" class="text-primary" style="width: 40px; height: 40px;"></i>
-                            </div>
-                        </div>
+                    <div class="card h-100 border shadow-sm hover-lift transition-all p-5 rounded-4 text-center group-hover-card bg-white">
+                        {{-- Icon Removed --}}
                         <h4 class="fw-bold text-primary mb-2">{{ $institution->abbr }}</h4>
                         <h6 class="text-dark fw-bold mb-3">{{ $institution->name }}</h6>
                         <p class="text-muted small mb-0">{{ $institution->description }}</p>
@@ -673,9 +670,7 @@
                     <small class="text-accent fw-bold text-uppercase ls-1">Dokumentasi</small>
                     <h2 class="fw-bold text-primary mt-1 mb-0">Galeri Kegiatan</h2>
                 </div>
-                <a href="#" class="btn btn-outline-primary rounded-pill px-4 fw-bold d-flex align-items-center gap-2">
-                    Lihat Semua <i data-lucide="arrow-right" style="width: 18px;"></i>
-                </a>
+                {{-- Button Removed --}}
             </div>
 
             @if($galleries->count() > 0)

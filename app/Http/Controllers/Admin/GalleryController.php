@@ -6,17 +6,25 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Gallery;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class GalleryController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'date' => 'required|date',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('active_tab', 'galeri');
+        }
 
         $data = $request->all();
 
@@ -29,19 +37,26 @@ class GalleryController extends Controller
 
         Gallery::create($data);
 
-        return redirect()->back()->with('success', 'Foto Galeri berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Foto Galeri berhasil ditambahkan.')->with('active_tab', 'galeri');
     }
 
     public function update(Request $request, $id)
     {
         $gallery = Gallery::findOrFail($id);
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'date' => 'required|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('active_tab', 'galeri');
+        }
 
         $data = $request->all();
 
@@ -59,7 +74,7 @@ class GalleryController extends Controller
 
         $gallery->update($data);
 
-        return redirect()->back()->with('success', 'Foto Galeri berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Foto Galeri berhasil diperbarui.')->with('active_tab', 'galeri');
     }
 
     public function destroy($id)
@@ -73,6 +88,6 @@ class GalleryController extends Controller
 
         $gallery->delete();
 
-        return redirect()->back()->with('success', 'Foto Galeri berhasil dihapus.');
+        return redirect()->back()->with('success', 'Foto Galeri berhasil dihapus.')->with('active_tab', 'galeri');
     }
 }
