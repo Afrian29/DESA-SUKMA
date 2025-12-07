@@ -331,6 +331,38 @@
             transform: translate(-50%, -50%) rotate(180deg);
             opacity: 0.5 !important;
         }
+
+        /* --- CUSTOM MISSION CARD (Uiverse Adapted) --- */
+        .mission-card-outer {
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(163deg, #FCA311 0%, #0B2F5E 100%);
+            border-radius: 20px;
+            transition: all .3s;
+            padding: 3px; /* Creates the border width */
+            box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.05);
+        }
+
+        .mission-card-inner {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border-radius: 17px; /* 20px - 3px padding */
+            transition: all .2s;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: none;
+        }
+
+        .mission-card-inner:hover {
+            transform: scale(0.98);
+            border-radius: 20px;
+        }
+
+        .mission-card-outer:hover {
+            box-shadow: 0px 0px 30px 1px rgba(252, 163, 17, 0.30);
+        }
     </style>
 </head>
 <body tabindex="0">
@@ -535,14 +567,19 @@
         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at top right, rgba(252, 163, 17, 0.15), transparent 40%);"></div>
         
         <div class="container py-lg-5 position-relative z-1">
-            <div class="row g-5">
+            <!-- Section Title (Centered) -->
+            <div class="text-center mb-5 reveal">
+                <small class="text-accent fw-bold text-uppercase ls-1">Arah Pembangunan</small>
+                <h2 class="fw-bold text-white mt-1">Visi & Misi Desa</h2>
+            </div>
+
+            <div class="row g-5 align-items-stretch">
                 <!-- Visi Column -->
                 <div class="col-lg-4 reveal">
-                    <div class="pe-lg-4">
-                        <small class="text-accent fw-bold text-uppercase ls-1 mb-2 d-block">Arah Pembangunan</small>
-                        <h2 class="fw-bold text-white mb-4">Visi & Misi Desa</h2>
-                        <div class="p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10" style="backdrop-filter: blur(10px);">
+                    <div class="pe-lg-4 h-100">
+                        <div class="p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 h-100 d-flex flex-column justify-content-center" style="backdrop-filter: blur(10px);">
                             <i data-lucide="quote" class="text-accent mb-3" style="width: 32px;"></i>
+                            <h3 class="text-white fw-bold mb-3">Visi</h3>
                             <p class="lead text-white mb-0 fst-italic">
                                 "Terwujudnya Desa Sukma yang Mandiri, Maju, dan Sejahtera Berlandaskan Gotong Royong."
                             </p>
@@ -550,49 +587,50 @@
                     </div>
                 </div>
 
-                <!-- Misi Column -->
+                <!-- Misi Column (Scrollable) -->
                 <div class="col-lg-8 reveal">
-                    <div class="row g-4">
+                    <div id="misi-scroll-container" class="d-flex flex-nowrap overflow-auto pb-4 gap-4" style="cursor: grab; scrollbar-width: none; -ms-overflow-style: none;">
                         <!-- Misi 1 -->
-                        <div class="col-md-6">
-                            <div class="stat-card h-100 border-0">
-                                <div class="icon-box bg-blue-soft mb-3">
-                                    <i data-lucide="shield-check"></i>
+                        <div class="col-10 col-md-5 flex-shrink-0">
+                            <div class="mission-card-outer user-select-none">
+                                <div class="mission-card-inner">
+                                    <h5 class="fw-bold text-primary">Tata Kelola Transparan</h5>
+                                    <p class="text-muted small mb-0">Mewujudkan pemerintahan desa yang akuntabel, terbuka, dan melayani masyarakat.</p>
                                 </div>
-                                <h5 class="fw-bold text-primary">Tata Kelola Transparan</h5>
-                                <p class="text-muted small mb-0">Mewujudkan pemerintahan desa yang akuntabel, terbuka, dan melayani masyarakat.</p>
                             </div>
                         </div>
                         <!-- Misi 2 -->
-                        <div class="col-md-6">
-                            <div class="stat-card h-100 border-0">
-                                <div class="icon-box bg-yellow-soft mb-3">
-                                    <i data-lucide="graduation-cap"></i>
+                        <div class="col-10 col-md-5 flex-shrink-0">
+                            <div class="mission-card-outer user-select-none">
+                                <div class="mission-card-inner">
+                                    <h5 class="fw-bold text-primary">SDM Unggul</h5>
+                                    <p class="text-muted small mb-0">Meningkatkan kualitas pendidikan dan kesehatan yang terjangkau bagi semua.</p>
                                 </div>
-                                <h5 class="fw-bold text-primary">SDM Unggul</h5>
-                                <p class="text-muted small mb-0">Meningkatkan kualitas pendidikan dan kesehatan yang terjangkau bagi semua.</p>
                             </div>
                         </div>
                         <!-- Misi 3 -->
-                        <div class="col-md-6">
-                            <div class="stat-card h-100 border-0">
-                                <div class="icon-box bg-yellow-soft mb-3">
-                                    <i data-lucide="trending-up"></i>
+                        <div class="col-10 col-md-5 flex-shrink-0">
+                            <div class="mission-card-outer user-select-none">
+                                <div class="mission-card-inner">
+                                    <h5 class="fw-bold text-primary">Ekonomi Kerakyatan</h5>
+                                    <p class="text-muted small mb-0">Mengembangkan potensi UMKM dan pariwisata berbasis kearifan lokal.</p>
                                 </div>
-                                <h5 class="fw-bold text-primary">Ekonomi Kerakyatan</h5>
-                                <p class="text-muted small mb-0">Mengembangkan potensi UMKM dan pariwisata berbasis kearifan lokal.</p>
                             </div>
                         </div>
                         <!-- Misi 4 -->
-                        <div class="col-md-6">
-                            <div class="stat-card h-100 border-0">
-                                <div class="icon-box bg-blue-soft mb-3">
-                                    <i data-lucide="sprout"></i>
+                        <div class="col-10 col-md-5 flex-shrink-0">
+                            <div class="mission-card-outer user-select-none">
+                                <div class="mission-card-inner">
+                                    <h5 class="fw-bold text-primary">Infrastruktur Hijau</h5>
+                                    <p class="text-muted small mb-0">Pembangunan berkelanjutan yang memperhatikan kelestarian lingkungan.</p>
                                 </div>
-                                <h5 class="fw-bold text-primary">Infrastruktur Hijau</h5>
-                                <p class="text-muted small mb-0">Pembangunan berkelanjutan yang memperhatikan kelestarian lingkungan.</p>
                             </div>
                         </div>
+                    </div>
+                    <!-- Scroll Indicator Hint -->
+                    <div class="d-flex align-items-center gap-2 text-white-50 mt-2 small">
+                         <i data-lucide="arrow-left-right" style="width: 16px;"></i>
+                         <span>Geser atau tarik untuk melihat lebih banyak</span>
                     </div>
                 </div>
             </div>
@@ -802,7 +840,41 @@
             sections.forEach(section => {
                 observer.observe(section);
             });
+
+            // Drag to Scroll Implementation for Vision & Mission
+            const scrollContainer = document.getElementById('misi-scroll-container');
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            if (scrollContainer) {
+                scrollContainer.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    scrollContainer.classList.add('active');
+                    scrollContainer.style.cursor = 'grabbing';
+                    startX = e.pageX - scrollContainer.offsetLeft;
+                    scrollLeft = scrollContainer.scrollLeft;
+                });
+                scrollContainer.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    scrollContainer.classList.remove('active');
+                    scrollContainer.style.cursor = 'grab';
+                });
+                scrollContainer.addEventListener('mouseup', () => {
+                    isDown = false;
+                    scrollContainer.classList.remove('active');
+                    scrollContainer.style.cursor = 'grab';
+                });
+                scrollContainer.addEventListener('mousemove', (e) => {
+                    if(!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - scrollContainer.offsetLeft;
+                    const walk = (x - startX) * 2; // Scroll-fast
+                    scrollContainer.scrollLeft = scrollLeft - walk;
+                });
+            }
         });
+
 
         // Navbar Scroll Effect
         const navbar = document.querySelector('.navbar');
