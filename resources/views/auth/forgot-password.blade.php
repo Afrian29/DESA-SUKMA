@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Desa Sukma</title>
+    <title>Lupa Password - Desa Sukma</title>
     <link rel="icon" href="{{ asset('images/logo-bone-bolango.png') }}" type="image/x-icon">
     
     <!-- Fonts: Plus Jakarta Sans -->
@@ -60,7 +60,7 @@
             border-radius: 20px;
             padding: 2.5rem 2rem;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             position: relative;
             z-index: 10;
@@ -193,59 +193,39 @@
             <div class="logo-wrapper">
                 <img src="{{ asset('images/logo-bone-bolango.png') }}" alt="Logo" height="40">
             </div>
-            <h5 class="fw-bold text-primary mb-1">Selamat Datang Kembali!</h5>
-            <p class="text-muted small">Masuk untuk mengelola data desa.</p>
+            <h5 class="fw-bold text-primary mb-1">Lupa Password?</h5>
+            <p class="text-muted small">Masukkan email Anda dan kami akan mengirimkan link untuk mereset password.</p>
         </div>
 
-        <form action="{{ route('login') }}" method="POST">
+        @if (session('status'))
+            <div class="alert alert-success small mb-4 shadow-sm border-0" role="alert">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <form action="{{ route('password.email') }}" method="POST">
             @csrf
-            
-            <div class="mb-4">
-                <label class="form-label small fw-bold text-uppercase text-muted ls-1" style="font-size: 0.75rem;">Username</label>
-                <div class="custom-input-group @error('username') is-invalid @enderror">
-                    <div class="input-icon-wrapper">
-                        <i data-lucide="user" style="width: 20px;"></i>
-                    </div>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username" value="{{ old('username') }}" required autofocus>
-                </div>
-                @error('username')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
 
             <div class="mb-4">
-                <label class="form-label small fw-bold text-uppercase text-muted ls-1" style="font-size: 0.75rem;">Password</label>
-                <div class="custom-input-group @error('password') is-invalid @enderror">
+                <label class="form-label small fw-bold text-uppercase text-muted ls-1" style="font-size: 0.75rem;">Email Address</label>
+                <div class="custom-input-group @error('email') is-invalid @enderror">
                     <div class="input-icon-wrapper">
-                        <i data-lucide="lock" style="width: 20px;"></i>
+                        <i data-lucide="mail" style="width: 20px;"></i>
                     </div>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password" required>
-                    <button type="button" class="btn btn-link text-muted p-0 me-3" id="togglePassword" style="text-decoration: none;">
-                        <i data-lucide="eye" style="width: 20px;"></i>
-                    </button>
+                    <input type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="Masukkan email Anda" required autofocus>
                 </div>
-                @error('password')
+                @error('email')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                    <label class="form-check-label small text-muted fw-semibold" for="remember">
-                        Ingat Saya
-                    </label>
-                </div>
-                <a href="{{ route('password.request') }}" class="text-decoration-none small fw-bold text-primary">Lupa Password?</a>
             </div>
 
             <button type="submit" class="btn-primary-custom mb-4">
-                Masuk Dashboard
+                Kirim Link Reset
             </button>
 
             <div class="text-center">
-                <a href="/" class="text-decoration-none text-muted small d-inline-flex align-items-center hover-primary fw-semibold">
-                    <i data-lucide="arrow-left" style="width: 14px; margin-right: 6px;"></i> Kembali ke Beranda
+                <a href="{{ route('login') }}" class="text-decoration-none text-muted small d-inline-flex align-items-center hover-primary fw-semibold">
+                    <i data-lucide="arrow-left" style="width: 14px; margin-right: 6px;"></i> Kembali ke Login
                 </a>
             </div>
         </form>
@@ -253,26 +233,6 @@
 
     <script>
         lucide.createIcons();
-
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
-        const toggleIcon = togglePassword.querySelector('i');
-
-        togglePassword.addEventListener('click', function (e) {
-            // toggle the type attribute
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-
-            // toggle the eye icon
-            if (type === 'password') {
-                toggleIcon.setAttribute('data-lucide', 'eye');
-            } else {
-                toggleIcon.setAttribute('data-lucide', 'eye-off');
-            }
-            
-            // refresh icons
-            lucide.createIcons();
-        });
     </script>
 </body>
 </html>

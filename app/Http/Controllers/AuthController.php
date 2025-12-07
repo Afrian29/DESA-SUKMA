@@ -34,7 +34,9 @@ class AuthController extends Controller
             ])->onlyInput('username');
         }
 
-        if (Auth::attempt($credentials)) {
+        $remember = $request->boolean('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
             return redirect()->intended('/admin/dashboard');
