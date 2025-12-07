@@ -4,6 +4,19 @@
 @section('header-subtitle', 'Kelola informasi profil desa, aparat, lembaga, dan galeri.')
 
 @section('content')
+<style>
+    .institution-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .institution-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .hover-danger:hover {
+        background-color: #fee2e2 !important;
+        color: #ef4444 !important;
+    }
+</style>
 <div class="container-fluid">
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -201,28 +214,27 @@
                     <div class="row g-4">
                         @foreach($institutions as $institution)
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border-0 shadow-sm rounded-2 p-3 position-relative">
-                                <form action="{{ route('admin.institution.destroy', $institution->id) }}" method="POST" class="position-absolute top-0 end-0 m-2 z-1" onsubmit="return confirm('Hapus data ini?');">
+                            <div class="card h-100 border shadow-sm rounded-4 overflow-hidden position-relative institution-card">
+                                <form action="{{ route('admin.institution.destroy', $institution->id) }}" method="POST" class="position-absolute top-0 end-0 m-3 z-1" onsubmit="return confirm('Hapus data ini?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm rounded-circle p-1" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                                        <i data-lucide="x" style="width: 14px;"></i>
+                                    <button type="submit" class="btn btn-light btn-sm rounded-circle p-0 text-muted hover-danger shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i data-lucide="trash-2" style="width: 16px;"></i>
                                     </button>
                                 </form>
 
-                                <div class="d-flex align-items-start gap-3">
-                                    <div class="bg-primary bg-opacity-10 text-primary rounded-1 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                        <i data-lucide="{{ $institution->icon }}" class="w-5 h-5"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold text-dark mb-1">{{ $institution->abbr }}</h6>
-                                        <p class="text-primary fw-bold small mb-1">{{ $institution->name }}</p>
-                                        <p class="text-muted small mb-2 lh-sm">{{ Str::limit($institution->description, 50) }}</p>
-                                    </div>
+                                <div class="card-body p-5 text-center d-flex flex-column align-items-center">
+                                    {{-- Icon Removed --}}
+
+                                    <h4 class="fw-bold text-dark mb-1" style="color: #0B2F5E !important;">{{ $institution->abbr }}</h4>
+                                    <h6 class="text-secondary fw-bold text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">{{ $institution->name }}</h6>
+                                    
+                                    <p class="text-muted small mb-4" style="line-height: 1.6;">{{ Str::limit($institution->description, 100) }}</p>
+                                    
+                                    <button class="btn btn-outline-primary px-4 rounded-pill fw-bold mt-auto" data-bs-toggle="modal" data-bs-target="#editInstitutionModal{{ $institution->id }}">
+                                        Edit Detail
+                                    </button>
                                 </div>
-                                <button class="btn btn-light btn-sm w-100 mt-3" data-bs-toggle="modal" data-bs-target="#editInstitutionModal{{ $institution->id }}">
-                                    Edit
-                                </button>
                             </div>
                         </div>
 
@@ -250,11 +262,7 @@
                                                 <label class="form-label">Deskripsi</label>
                                                 <textarea name="description" class="form-control" rows="3" required>{{ $institution->description }}</textarea>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Icon (Lucide Name)</label>
-                                                <input type="text" name="icon" class="form-control" value="{{ $institution->icon }}" required>
-                                                <small class="text-muted">Contoh: users, building, heart-handshake</small>
-                                            </div>
+                                            {{-- Icon Input Removed --}}
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
@@ -412,11 +420,7 @@
                         <label class="form-label">Deskripsi</label>
                         <textarea name="description" class="form-control" rows="3" required></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Icon (Lucide Name)</label>
-                        <input type="text" name="icon" class="form-control" placeholder="users" required>
-                        <small class="text-muted">Lihat nama icon di <a href="https://lucide.dev/icons" target="_blank">Lucide Icons</a></small>
-                    </div>
+                    {{-- Icon Input Removed --}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
@@ -463,4 +467,16 @@
         </div>
     </div>
 </div>
+@if(session('active_tab'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var activeTab = "{{ session('active_tab') }}";
+            var tabTrigger = document.querySelector('#' + activeTab + '-tab');
+            if (tabTrigger) {
+                var tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        });
+    </script>
+@endif
 @endsection

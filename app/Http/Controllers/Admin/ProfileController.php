@@ -8,6 +8,7 @@ use App\Models\VillageProfile;
 use App\Models\Official;
 use App\Models\Institution;
 use App\Models\Gallery;
+use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
@@ -23,7 +24,7 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'kades_name' => 'required|string|max:255',
             'sambutan_title' => 'required|string|max:255',
             'sambutan_content' => 'required|string',
@@ -31,6 +32,13 @@ class ProfileController extends Controller
             'luas_wilayah' => 'nullable|string|max:255',
             'umkm_count' => 'nullable|integer|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('active_tab', 'kades');
+        }
 
         $profile = VillageProfile::firstOrNew();
         $profile->kades_name = $request->kades_name;
@@ -55,6 +63,6 @@ class ProfileController extends Controller
 
         $profile->save();
 
-        return redirect()->back()->with('success', 'Profil Desa berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Profil Desa berhasil diperbarui.')->with('active_tab', 'kades');
     }
 }
