@@ -105,6 +105,9 @@
                     @endforeach
                 </select>
 
+                <a href="{{ route('penduduk.export.word') }}" class="btn btn-success d-flex align-items-center gap-2 rounded-2 px-3 shadow-sm">
+                    <i data-lucide="file-text" style="width: 18px;"></i> <span class="d-none d-md-inline">Ekspor Word</span>
+                </a>
                 <a href="{{ route('penduduk.create') }}" class="btn btn-primary d-flex align-items-center gap-2 rounded-2 px-3 shadow-sm">
                     <i data-lucide="plus" style="width: 18px;"></i> <span class="d-none d-md-inline">Tambah</span>
                 </a>

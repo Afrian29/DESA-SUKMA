@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ExportController;
 
 use App\Models\VillageProfile;
 use App\Models\Official;
@@ -66,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/user/update', [AdminController::class, 'updateUserProfile'])->name('admin.user.update');
     Route::get('/admin/api/kk/search', [\App\Http\Controllers\PendudukController::class, 'searchKK'])->name('api.kk.search');
     Route::get('/admin/api/penduduk/search', [\App\Http\Controllers\PendudukController::class, 'search'])->name('api.penduduk.search');
+    Route::get('/admin/penduduk/export/word', [ExportController::class, 'exportPendudukWord'])->name('penduduk.export.word');
     Route::resource('/admin/penduduk', \App\Http\Controllers\PendudukController::class);
 
     // Mutasi Routes
