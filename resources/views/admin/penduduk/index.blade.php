@@ -124,6 +124,7 @@
                             <th class="py-3 text-uppercase small fw-bold border-white">Tempat tanggal lahir</th>
                             <th class="py-3 text-uppercase small fw-bold border-white">Usia</th>
                             <th class="py-3 text-center text-uppercase small fw-bold border-white">Kelamin</th>
+                            <th class="py-3 text-center text-uppercase small fw-bold border-white">Hubungan Keluarga</th>
                             <!-- <th class="py-3 text-center text-uppercase small fw-bold border-white">Dusun</th> -->
                             <th class="py-3 text-uppercase small fw-bold border-white">Pekerjaan</th>
                             <th class="py-3 text-end pe-4 text-uppercase small fw-bold border-white">Aksi</th>
@@ -151,6 +152,7 @@
                                         {{ $penduduk->jenis_kelamin }}
                                     </span>
                                 </td>
+                                <td class="text-center text-secondary small">{{ $penduduk->status_hubungan_dalam_keluarga }}</td>
                                 <td class="text-secondary">{{ $penduduk->pekerjaan }}</td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-2">
