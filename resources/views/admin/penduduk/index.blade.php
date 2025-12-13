@@ -91,12 +91,17 @@
                     <option value="Dusun 3" {{ request('dusun') == 'Dusun 3' ? 'selected' : '' }}>Dusun 3</option>
                 </select>
 
-                <select name="usia" id="usia-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;">
-                    <option value="">Pilih Usia</option>
-                    @foreach($ageList as $age)
-                        <option value="{{ $age }}" {{ (string)request('usia') === (string)$age ? 'selected' : '' }}>{{ $age }} Tahun</option>
-                    @endforeach
-                </select>
+                <!-- Age Range Filter -->
+                <style>
+                    .age-input::-webkit-outer-spin-button,
+                    .age-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+                    .age-input { -moz-appearance: textfield; }
+                </style>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="number" name="usia_min" id="usia-min-filter" class="form-control text-center fw-bold age-input shadow-sm" placeholder="MIN" value="{{ request('usia_min') }}" style="width: 70px; height: 42px; font-size: 1rem; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 10px;" min="0" max="120">
+                    <span class="fw-bold text-dark" style="font-size: 1.2rem;">—</span>
+                    <input type="number" name="usia_max" id="usia-max-filter" class="form-control text-center fw-bold age-input shadow-sm" placeholder="MAX" value="{{ request('usia_max') }}" style="width: 70px; height: 42px; font-size: 1rem; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 10px;" min="0" max="120">
+                </div>
 
                 <select name="pekerjaan" id="pekerjaan-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 140px; cursor: pointer;">
                     <option value="">Semua Pekerjaan</option>
@@ -373,14 +378,16 @@
         function fetchData() {
             const dusun = document.getElementById('dusun-filter') ? document.getElementById('dusun-filter').value : '';
             const search = document.getElementById('search-input') ? document.getElementById('search-input').value : '';
-            const usia = document.getElementById('usia-filter') ? document.getElementById('usia-filter').value : '';
+            const usiaMin = document.getElementById('usia-min-filter') ? document.getElementById('usia-min-filter').value : '';
+            const usiaMax = document.getElementById('usia-max-filter') ? document.getElementById('usia-max-filter').value : '';
             const pekerjaan = document.getElementById('pekerjaan-filter') ? document.getElementById('pekerjaan-filter').value : '';
             
             const url = new URL(window.location.href);
             
             if (dusun) url.searchParams.set('dusun', dusun); else url.searchParams.delete('dusun');
             if (search) url.searchParams.set('search', search); else url.searchParams.delete('search');
-            if (usia !== '') url.searchParams.set('usia', usia); else url.searchParams.delete('usia');
+            if (usiaMin !== '') url.searchParams.set('usia_min', usiaMin); else url.searchParams.delete('usia_min');
+            if (usiaMax !== '') url.searchParams.set('usia_max', usiaMax); else url.searchParams.delete('usia_max');
             if (pekerjaan) url.searchParams.set('pekerjaan', pekerjaan); else url.searchParams.delete('pekerjaan');
             
             // Check if stats panel is open
@@ -403,20 +410,28 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const newContentElement = doc.getElementById('penduduk-card');
-                    const newToolbarElement = doc.getElementById('toolbar-container');
-                    const toolbar = document.getElementById('toolbar-container');
+                    const newStatsPanel = doc.getElementById('statsPanel');
+                    const newSummaryCount = doc.querySelector('.d-flex.align-items-center.gap-3.text-secondary .text-dark.fw-bold');
                     
                     if (newContentElement && card) {
+                        // Update ONLY the data table
                         card.innerHTML = newContentElement.innerHTML;
                         
-                        // Update Toolbar (Summary & Stats)
-                        if (newToolbarElement && toolbar) {
-                            toolbar.innerHTML = newToolbarElement.innerHTML;
-                            
-                            // Restore Stats Panel State
-                            const newStatsPanel = document.getElementById('statsPanel');
-                            if (isStatsOpen && newStatsPanel) {
-                                newStatsPanel.classList.add('show');
+                        // Update ONLY the stats panel (NOT the entire toolbar)
+                        const currentStatsPanel = document.getElementById('statsPanel');
+                        if (newStatsPanel && currentStatsPanel) {
+                            const wasOpen = currentStatsPanel.classList.contains('show');
+                            currentStatsPanel.innerHTML = newStatsPanel.innerHTML;
+                            if (wasOpen) {
+                                currentStatsPanel.classList.add('show');
+                            }
+                        }
+                        
+                        // Update summary count display (total penduduk counter)
+                        if (newSummaryCount) {
+                            const currentSummaryCount = document.querySelector('.d-flex.align-items-center.gap-3.text-secondary .text-dark.fw-bold');
+                            if (currentSummaryCount) {
+                                currentSummaryCount.textContent = newSummaryCount.textContent;
                             }
                         }
 
@@ -428,15 +443,8 @@
                         // Update URL without reload
                         window.history.pushState({}, '', url);
                         
-                        // Re-attach event listeners
-                        attachListeners();
-                        
-                        // Restore focus to search input
-                        const newSearchInput = document.getElementById('search-input');
-                        if (newSearchInput) {
-                            newSearchInput.focus();
-                            newSearchInput.setSelectionRange(newSearchInput.value.length, newSearchInput.value.length);
-                        }
+                        // NO NEED to re-attach listeners or restore focus
+                        // Inputs are NOT re-rendered, so cursor stays in place naturally
 
                     } else {
                         console.error('Failed to parse response or find element');
@@ -449,13 +457,27 @@
 
         function attachListeners() {
             const dusunFilter = document.getElementById('dusun-filter');
-            const usiaFilter = document.getElementById('usia-filter');
+            const usiaMinFilter = document.getElementById('usia-min-filter');
+            const usiaMaxFilter = document.getElementById('usia-max-filter');
             const pekerjaanFilter = document.getElementById('pekerjaan-filter');
             const searchInput = document.getElementById('search-input');
 
             if (dusunFilter) dusunFilter.addEventListener('change', fetchData);
-            if (usiaFilter) usiaFilter.addEventListener('change', fetchData);
             if (pekerjaanFilter) pekerjaanFilter.addEventListener('change', fetchData);
+
+            // Real-time age filter (with debounce for better UX)
+            if (usiaMinFilter) {
+                usiaMinFilter.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(fetchData, 300);
+                });
+            }
+            if (usiaMaxFilter) {
+                usiaMaxFilter.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(fetchData, 300);
+                });
+            }
 
             if (searchInput) {
                 searchInput.addEventListener('input', function() {

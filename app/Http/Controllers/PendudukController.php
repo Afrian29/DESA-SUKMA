@@ -22,10 +22,21 @@ class PendudukController extends Controller
             $query->where('pekerjaan', request('pekerjaan'));
         }
 
-        // Filter by Specific Age
-        if (request()->has('usia') && request('usia') !== null && request('usia') !== '') {
-            $age = request('usia');
-            $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) = ?', [$age]);
+        // Filter by Age Range (Real-time)
+        // If only usia_min is provided: filter exact age
+        // If both usia_min and usia_max are provided: filter age range
+        $usiaMin = request('usia_min');
+        $usiaMax = request('usia_max');
+        
+        if ($usiaMin !== null && $usiaMin !== '') {
+            if ($usiaMax !== null && $usiaMax !== '') {
+                // Range filter: between min and max
+                $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= ?', [(int)$usiaMin])
+                      ->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) <= ?', [(int)$usiaMax]);
+            } else {
+                // Exact age filter: only min provided
+                $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) = ?', [(int)$usiaMin]);
+            }
         }
 
         // Search
