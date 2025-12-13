@@ -177,10 +177,28 @@ class PendudukController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q');
-        $penduduks = \App\Models\Penduduk::where('nik', 'like', "%{$query}%")
-            ->orWhere('nama_lengkap', 'like', "%{$query}%")
-            ->limit(10)
-            ->get(['nik', 'nama_lengkap', 'no_kk', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir']);
+        $byKK = $request->get('by_kk');
+
+        if ($byKK) {
+            // Search by KK number - return all family members who are still alive
+            $penduduks = \App\Models\Penduduk::where('no_kk', $query)
+                ->where('status_dasar', 'HIDUP')
+                ->orderByRaw("
+                    CASE status_hubungan_dalam_keluarga
+                        WHEN 'KEPALA KELUARGA' THEN 1
+                        WHEN 'ISTRI' THEN 2
+                        WHEN 'ANAK' THEN 3
+                        ELSE 4
+                    END
+                ")
+                ->get(['nik', 'nama_lengkap', 'no_kk', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'status_hubungan_dalam_keluarga']);
+        } else {
+            // Normal search by NIK or Name
+            $penduduks = \App\Models\Penduduk::where('nik', 'like', "%{$query}%")
+                ->orWhere('nama_lengkap', 'like', "%{$query}%")
+                ->limit(10)
+                ->get(['nik', 'nama_lengkap', 'no_kk', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'status_hubungan_dalam_keluarga']);
+        }
             
         return response()->json($penduduks);
     }
@@ -201,41 +219,15 @@ class PendudukController extends Controller
             'jenis_kelamin' => 'required|in:L,P',
             'tempat_lahir' => 'required|string',
             'tanggal_lahir' => 'required|date',
-            'tanggal_lahir' => 'required|date',
             'pendidikan_terakhir' => 'required|string',
             'pekerjaan' => 'required|string',
             'status_hubungan_dalam_keluarga' => 'required|string',
-            // KK fields validation if we allow editing KK from here
             'no_kk' => 'required|numeric|digits:16',
             'dusun' => 'required|string',
         ]);
 
-        // VALIDATION: Single Head of Family Check
-        if ($request->status_hubungan_dalam_keluarga === 'KEPALA KELUARGA') {
-            // Check if KK already has a head (excluding this person)
-            // Note: We use request->no_kk because the person might be moving to a new KK
-            $existingHead = \App\Models\Penduduk::where('no_kk', $request->no_kk)
-                ->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')
-                ->where('status_dasar', 'HIDUP')
-                ->where('nik', '!=', $nik) // Exclude self
-                ->exists();
-
-            if ($existingHead) {
-                return back()->withInput()->withErrors(['status_hubungan_dalam_keluarga' => 'Nomor KK ini sudah memiliki Kepala Keluarga.']);
-            }
-        }
-
-        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $penduduk) {
-            // Update KK info if needed (optional, depending on requirements. 
-            // For now, we assume we might update the KK details linked to this person 
-            // OR move them to a different KK. 
-            // Given the UI, it's safer to just update the Penduduk and potentially the KK *if* it's the same KK)
-            
-            // Logic: If NO_KK changed, we might need to find/create new KK.
-            // For simplicity in this step, let's assume we update the current KK details 
-            // OR just update the Penduduk's link to a KK.
-            
-            // Let's stick to the pattern: Find/Create KK based on input No KK
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $penduduk, $nik) {
+            // Find/Create KK based on input No KK
             $kk = \App\Models\KartuKeluarga::firstOrCreate(
                 ['no_kk' => $request->no_kk],
                 [
@@ -248,7 +240,7 @@ class PendudukController extends Controller
                 ]
             );
 
-            // Update KK details if it exists (optional, but good for consistency)
+            // Update KK details if it exists
             if ($kk->wasRecentlyCreated === false) {
                 $kk->update([
                     'dusun' => $request->dusun,
@@ -259,23 +251,38 @@ class PendudukController extends Controller
                 ]);
             }
 
+            // HEAD OF FAMILY SWAP LOGIC
+            if ($request->status_hubungan_dalam_keluarga === 'KEPALA KELUARGA') {
+                // Find existing head of family in this KK (excluding self)
+                $existingHead = \App\Models\Penduduk::where('no_kk', $request->no_kk)
+                    ->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')
+                    ->where('status_dasar', 'HIDUP')
+                    ->where('nik', '!=', $nik)
+                    ->first();
+
+                // If there's an existing head, demote them to 'ANGGOTA'
+                if ($existingHead) {
+                    $existingHead->update([
+                        'status_hubungan_dalam_keluarga' => 'ANGGOTA'
+                    ]);
+                }
+
+                // Update Kartu Keluarga's kepala_keluarga name
+                $kk->update(['kepala_keluarga' => $request->nama_lengkap]);
+            }
+
+            // Update the penduduk data - ensure no_kk is always set
             $penduduk->update([
                 'nik' => $request->nik,
-                'no_kk' => $kk->no_kk,
+                'no_kk' => $request->no_kk, // Explicitly set no_kk from request
                 'nama_lengkap' => $request->nama_lengkap,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'tempat_lahir' => $request->tempat_lahir,
-                'tanggal_lahir' => $request->tanggal_lahir,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'pendidikan_terakhir' => $request->pendidikan_terakhir,
                 'pekerjaan' => $request->pekerjaan,
                 'status_hubungan_dalam_keluarga' => $request->status_hubungan_dalam_keluarga,
             ]);
-            
-            // Update Kepala Keluarga if this person is now KK
-            if ($request->status_hubungan_dalam_keluarga === 'KEPALA KELUARGA') {
-                $kk->update(['kepala_keluarga' => $request->nama_lengkap]);
-            }
         });
 
         return redirect()->route('penduduk.index')->with('success', 'Data penduduk berhasil diperbarui.');

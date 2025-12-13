@@ -130,8 +130,9 @@
                                     <label class="form-label fw-bold text-secondary">Hubungan <span class="text-danger">*</span></label>
                                     <select class="form-select border-0 bg-light" name="status_hubungan_dalam_keluarga" required>
                                         <option value="">Pilih...</option>
-                                        @foreach(['KEPALA KELUARGA', 'ISTRI', 'ANAK', 'MENANTU', 'ORANG TUA', 'MERTUA', 'FAMILI LAIN'] as $hub)
-                                            <option value="{{ $hub }}" {{ old('status_hubungan_dalam_keluarga', $penduduk->status_hubungan_dalam_keluarga) == $hub ? 'selected' : '' }}>{{ $hub }}</option>
+                                        <option value="KEPALA KELUARGA" {{ strtoupper(old('status_hubungan_dalam_keluarga', $penduduk->status_hubungan_dalam_keluarga)) == 'KEPALA KELUARGA' ? 'selected' : '' }}>KEPALA KELUARGA</option>
+                                        @foreach(['Istri', 'Anak', 'Menantu', 'Orang Tua', 'Mertua', 'Famili Lain', 'Anggota'] as $hub)
+                                            <option value="{{ $hub }}" {{ ucwords(strtolower(old('status_hubungan_dalam_keluarga', $penduduk->status_hubungan_dalam_keluarga))) == $hub ? 'selected' : '' }}>{{ $hub }}</option>
                                         @endforeach
                                     </select>
                                 </div>

@@ -48,7 +48,14 @@
                     <option value="DATANG" {{ $jenisMutasi == 'DATANG' ? 'selected' : '' }}>Kedatangan</option>
                     <option value="PINDAH" {{ $jenisMutasi == 'PINDAH' ? 'selected' : '' }}>Kepindahan</option>
                 </select>
-                <select name="year" class="form-select rounded-2 shadow-sm border-0" style="width: 100px; cursor: pointer;" onchange="this.form.submit()">
+                <select name="month" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;" onchange="this.form.submit()">
+                    <option value="">Semua Bulan</option>
+                    @foreach($months as $m => $name)
+                        <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                </select>
+                <select name="year" class="form-select rounded-2 shadow-sm border-0" style="width: 120px; cursor: pointer;" onchange="this.form.submit()">
+                    <option value="">Semua Tahun</option>
                     @foreach($years as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
@@ -157,7 +164,19 @@
                             <td colspan="6" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center justify-content-center text-secondary">
                                     <i data-lucide="clipboard-x" style="width: 48px; height: 48px;" class="mb-3 opacity-50"></i>
-                                    <p class="mb-0">Belum ada data mutasi yang tercatat pada tahun {{ $year }}.</p>
+                                    @php
+                                        $periodText = '';
+                                        if ($month && $year) {
+                                            $periodText = 'pada periode ' . $months[$month] . ' ' . $year;
+                                        } elseif ($month) {
+                                            $periodText = 'pada bulan ' . $months[$month];
+                                        } elseif ($year) {
+                                            $periodText = 'pada tahun ' . $year;
+                                        } else {
+                                            $periodText = '';
+                                        }
+                                    @endphp
+                                    <p class="mb-0">Belum ada data mutasi yang tercatat {{ $periodText }}.</p>
                                 </div>
                             </td>
                         </tr>

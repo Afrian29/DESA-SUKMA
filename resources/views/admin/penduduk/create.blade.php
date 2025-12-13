@@ -172,12 +172,12 @@
                                                 <select class="form-select border-0 bg-white" name="anggota[0][status_hubungan_dalam_keluarga]" required>
                                                     <option value="">Pilih...</option>
                                                     <option value="KEPALA KELUARGA">KEPALA KELUARGA</option>
-                                                    <option value="ISTRI">ISTRI</option>
-                                                    <option value="ANAK">ANAK</option>
-                                                    <option value="MENANTU">MENANTU</option>
-                                                    <option value="ORANG TUA">ORANG TUA</option>
-                                                    <option value="MERTUA">MERTUA</option>
-                                                    <option value="FAMILI LAIN">FAMILI LAIN</option>
+                                                    <option value="Istri">Istri</option>
+                                                    <option value="Anak">Anak</option>
+                                                    <option value="Menantu">Menantu</option>
+                                                    <option value="Orang Tua">Orang Tua</option>
+                                                    <option value="Mertua">Mertua</option>
+                                                    <option value="Famili Lain">Famili Lain</option>
                                                 </select>
                                             </div>
 
@@ -355,12 +355,12 @@
                                 <select class="form-select border-0 bg-white" name="anggota[${anggotaIndex}][status_hubungan_dalam_keluarga]" required>
                                     <option value="">Pilih...</option>
                                     <option value="KEPALA KELUARGA">KEPALA KELUARGA</option>
-                                    <option value="ISTRI">ISTRI</option>
-                                    <option value="ANAK">ANAK</option>
-                                    <option value="MENANTU">MENANTU</option>
-                                    <option value="ORANG TUA">ORANG TUA</option>
-                                    <option value="MERTUA">MERTUA</option>
-                                    <option value="FAMILI LAIN">FAMILI LAIN</option>
+                                    <option value="Istri">Istri</option>
+                                    <option value="Anak">Anak</option>
+                                    <option value="Menantu">Menantu</option>
+                                    <option value="Orang Tua">Orang Tua</option>
+                                    <option value="Mertua">Mertua</option>
+                                    <option value="Famili Lain">Famili Lain</option>
                                 </select>
                             </div>
 

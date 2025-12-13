@@ -17,6 +17,23 @@
         background-color: #f8f9fa;
         cursor: pointer;
     }
+    /* Mode Card Styles */
+    .mode-card {
+        border-color: #dee2e6 !important;
+        transition: all 0.2s ease;
+    }
+    .mode-card:hover {
+        border-color: #adb5bd !important;
+        background-color: #f8f9fa;
+    }
+    .mode-card.active {
+        border-color: #ffc107 !important;
+        background-color: #fff9e6;
+    }
+    .mode-card.active.keluarga {
+        border-color: #0dcaf0 !important;
+        background-color: #e7fafe;
+    }
 </style>
 @endsection
 
@@ -236,7 +253,7 @@
 
         <!-- Form Pindah -->
         <div id="form-pindah" class="mutation-form d-none">
-            <form action="{{ route('mutasi.store.pindah') }}" method="POST">
+            <form action="{{ route('mutasi.store.pindah') }}" method="POST" id="formPindah">
                 @csrf
                 <div class="card border-0 shadow-sm rounded-2">
                     <div class="card-header bg-warning text-dark py-3 px-4">
@@ -251,6 +268,15 @@
                                 <div class="position-relative">
                                     <input type="text" class="form-control bg-light border-0" name="nik" id="searchNIKPindah" required maxlength="16" placeholder="Cari NIK / Nama..." autocomplete="off">
                                     <div id="searchResultsPindah" class="position-absolute w-100 bg-white shadow-lg rounded-1 mt-1 overflow-hidden" style="z-index: 1000; display: none; border: 1px solid rgba(0,0,0,0.1);"></div>
+                                </div>
+                                <!-- Checkbox untuk Pindah Satu Keluarga -->
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" name="pindah_keluarga" id="pindahKeluargaCheckbox" value="1">
+                                    <label class="form-check-label fw-semibold text-dark" for="pindahKeluargaCheckbox">
+                                        <i data-lucide="users" style="width: 16px; height: 16px;" class="me-1 text-info"></i>
+                                        Pindahkan Beserta Keluarga
+                                    </label>
+                                    <small class="d-block text-secondary mt-1">Centang untuk memindahkan seluruh anggota keluarga (satu KK)</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -322,6 +348,60 @@
     // Global state for KK Head
     window.currentKKHasHead = false;
 
+    // Pindah Mode State
+    window.currentPindahMode = 'perorangan';
+
+    // Set Pindah Mode Function
+    window.setPindahMode = function(mode) {
+        window.currentPindahMode = mode;
+        document.getElementById('modePindahInput').value = (mode === 'keluarga') ? '1' : '0';
+
+        // Update card styles
+        const peroranganCard = document.getElementById('modePeroranganCard');
+        const keluargaCard = document.getElementById('modeKeluargaCard');
+        
+        if (mode === 'perorangan') {
+            peroranganCard.classList.add('active');
+            peroranganCard.classList.remove('keluarga');
+            peroranganCard.querySelector('.mode-check').classList.remove('d-none');
+            keluargaCard.classList.remove('active', 'keluarga');
+            keluargaCard.querySelector('.mode-check').classList.add('d-none');
+        } else {
+            keluargaCard.classList.add('active', 'keluarga');
+            keluargaCard.querySelector('.mode-check').classList.remove('d-none');
+            peroranganCard.classList.remove('active');
+            peroranganCard.querySelector('.mode-check').classList.add('d-none');
+        }
+
+        // Toggle input containers
+        const nikContainer = document.getElementById('nikInputContainer');
+        const kkContainer = document.getElementById('kkInputContainer');
+        const familyPreview = document.getElementById('familyPreviewContainer');
+
+        if (mode === 'perorangan') {
+            nikContainer.classList.remove('d-none');
+            kkContainer.classList.add('d-none');
+            familyPreview.classList.add('d-none');
+            // Clear KK input and make NIK required
+            document.getElementById('searchKKPindah').value = '';
+            document.getElementById('searchNIKPindah').setAttribute('required', 'required');
+            document.getElementById('searchKKPindah').removeAttribute('required');
+        } else {
+            nikContainer.classList.add('d-none');
+            kkContainer.classList.remove('d-none');
+            familyPreview.classList.remove('d-none');
+            // Clear NIK input and make KK required
+            document.getElementById('searchNIKPindah').value = '';
+            document.getElementById('searchKKPindah').setAttribute('required', 'required');
+            document.getElementById('searchNIKPindah').removeAttribute('required');
+        }
+
+        // Re-init icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
     // Define functions globally to ensure they are accessible by onclick handlers
     window.calculateAge = function(input, targetId) {
         if (!input.value) return;
@@ -372,9 +452,9 @@
             // Add options based on state
             const options = [
                 { value: 'KEPALA KELUARGA', label: 'KEPALA KELUARGA', disabled: window.currentKKHasHead },
-                { value: 'ISTRI', label: 'ISTRI', disabled: false },
-                { value: 'ANAK', label: 'ANAK', disabled: false },
-                { value: 'FAMILI LAIN', label: 'FAMILI LAIN', disabled: false }
+                { value: 'Istri', label: 'Istri', disabled: false },
+                { value: 'Anak', label: 'Anak', disabled: false },
+                { value: 'Famili Lain', label: 'Famili Lain', disabled: false }
             ];
             
             options.forEach(opt => {
@@ -389,7 +469,7 @@
             
             // If current value was removed, select the first available
             if (window.currentKKHasHead && currentValue === 'KEPALA KELUARGA') {
-                select.value = 'ISTRI'; // Default fallback
+                select.value = 'Istri'; // Default fallback
             }
         });
     }
@@ -412,9 +492,9 @@
             optionsHtml += '<option value="KEPALA KELUARGA">KEPALA KELUARGA</option>';
         }
         optionsHtml += `
-            <option value="ISTRI">ISTRI</option>
-            <option value="ANAK">ANAK</option>
-            <option value="FAMILI LAIN">FAMILI LAIN</option>
+            <option value="Istri">Istri</option>
+            <option value="Anak">Anak</option>
+            <option value="Famili Lain">Famili Lain</option>
         `;
 
         row.innerHTML = `
@@ -662,6 +742,112 @@
                 
                 $(targetInput).val(p.nik);
                 $(resultsContainer).hide();
+            });
+
+            // KK Search for Pindah Family Mode
+            const searchKKPindah = $('#searchKKPindah');
+            const resultsKKPindah = $('#searchResultsKKPindah');
+            let kkSearchTimeout;
+
+            if (searchKKPindah.length) {
+                searchKKPindah.on('input', function() {
+                    clearTimeout(kkSearchTimeout);
+                    
+                    // Enforce numeric input
+                    let val = $(this).val().replace(/[^0-9]/g, '').slice(0, 16);
+                    $(this).val(val);
+
+                    if (val.length < 3) {
+                        resultsKKPindah.hide();
+                        return;
+                    }
+
+                    kkSearchTimeout = setTimeout(() => {
+                        $.ajax({
+                            url: '{{ route("api.kk.search") }}',
+                            data: { q: val },
+                            success: function(data) {
+                                resultsKKPindah.empty();
+                                if (data.length > 0) {
+                                    data.forEach(kk => {
+                                        const item = `
+                                            <div class="p-3 border-bottom cursor-pointer hover-bg-light search-item-kk-pindah" 
+                                                 data-kk='${JSON.stringify(kk)}'>
+                                                <div class="fw-bold text-primary">${kk.no_kk}</div>
+                                                <div class="small text-secondary">Kepala: ${kk.kepala_keluarga || '-'} | Dusun: ${kk.dusun}</div>
+                                            </div>
+                                        `;
+                                        resultsKKPindah.append(item);
+                                    });
+                                    resultsKKPindah.show();
+                                } else {
+                                    resultsKKPindah.hide();
+                                }
+                            }
+                        });
+                    }, 300);
+                });
+            }
+
+            // Handle KK Selection for Pindah
+            $(document).on('click', '.search-item-kk-pindah', function() {
+                const kk = $(this).data('kk');
+                searchKKPindah.val(kk.no_kk);
+                resultsKKPindah.hide();
+
+                // Load family members preview
+                loadFamilyMembers(kk.no_kk);
+            });
+
+            // Load Family Members for Preview
+            function loadFamilyMembers(no_kk) {
+                const familyList = $('#familyMembersList');
+                familyList.html('<span class="text-secondary small">Memuat anggota keluarga...</span>');
+
+                $.ajax({
+                    url: '{{ route("api.penduduk.search") }}',
+                    data: { q: no_kk, by_kk: 1 },
+                    success: function(data) {
+                        familyList.empty();
+                        if (data.length > 0) {
+                            data.forEach(p => {
+                                // Format SHDK
+                                let shdk = p.status_hubungan_dalam_keluarga || '-';
+                                if (shdk !== '-') {
+                                    const normalized = shdk.toLowerCase().trim();
+                                    if (normalized === 'kepala keluarga') {
+                                        shdk = 'KEPALA KELUARGA';
+                                    } else {
+                                        shdk = normalized.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                                    }
+                                }
+                                const badge = `
+                                    <span class="badge bg-info-subtle text-info rounded-pill px-3 py-2">
+                                        <i data-lucide="user" style="width: 14px; height: 14px;" class="me-1"></i>
+                                        ${p.nama_lengkap} (${shdk})
+                                    </span>
+                                `;
+                                familyList.append(badge);
+                            });
+                            // Re-init icons
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        } else {
+                            familyList.html('<span class="text-warning small">Tidak ada anggota keluarga ditemukan.</span>');
+                        }
+                    },
+                    error: function() {
+                        familyList.html('<span class="text-danger small">Gagal memuat data.</span>');
+                    }
+                });
+            }
+
+            // Close KK search results when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#kkInputContainer').length) {
+                    resultsKKPindah.hide();
+                }
             });
         }
     });
