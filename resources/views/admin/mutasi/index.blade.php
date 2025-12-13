@@ -15,25 +15,25 @@
             <div class="vr opacity-25 d-none d-md-block"></div>
             <div class="d-flex align-items-center gap-2" title="Kelahiran">
                 <div class="d-flex align-items-center justify-content-center bg-info-subtle text-info rounded-circle" style="width: 28px; height: 28px;">
-                    <i data-lucide="baby" style="width: 16px;"></i>
+                    <span class="fw-bold small">L</span>
                 </div>
                 <span class="text-dark fw-bold">{{ $totalLahir }}</span>
             </div>
             <div class="d-flex align-items-center gap-2" title="Kematian">
                 <div class="d-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle" style="width: 28px; height: 28px;">
-                    <i data-lucide="heart-crack" style="width: 16px;"></i>
+                    <span class="fw-bold small">M</span>
                 </div>
                 <span class="text-dark fw-bold">{{ $totalMati }}</span>
             </div>
             <div class="d-flex align-items-center gap-2" title="Kedatangan">
                 <div class="d-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style="width: 28px; height: 28px;">
-                    <i data-lucide="log-in" style="width: 16px;"></i>
+                    <span class="fw-bold small">D</span>
                 </div>
                 <span class="text-dark fw-bold">{{ $totalDatang }}</span>
             </div>
             <div class="d-flex align-items-center gap-2" title="Kepindahan">
                 <div class="d-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-circle" style="width: 28px; height: 28px;">
-                    <i data-lucide="log-out" style="width: 16px;"></i>
+                    <span class="fw-bold small">P</span>
                 </div>
                 <span class="text-dark fw-bold">{{ $totalPindah }}</span>
             </div>
