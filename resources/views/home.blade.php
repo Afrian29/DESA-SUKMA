@@ -487,17 +487,17 @@
                     <div class="stat-card accent-border">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <small class="text-muted fw-bold text-uppercase">Luas Wilayah</small>
-                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ optional($profile)->luas_wilayah ?? '0' }} <span class="fs-5 text-muted">Ha</span></h2>
+                                <small class="text-muted fw-bold text-uppercase">Total Kartu Keluarga</small>
+                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ number_format($totalKK, 0, ',', '.') }}</h2>
                             </div>
                             <div class="icon-box bg-yellow-soft">
-                                <i data-lucide="map"></i>
+                                <i data-lucide="home"></i>
                             </div>
                         </div>
                         <div class="progress" style="height: 6px;">
                             <div class="progress-bar bg-accent" role="progressbar" style="width: 100%"></div>
                         </div>
-                        <small class="text-muted d-block text-end mt-2">Wilayah Produktif</small>
+                        <small class="text-muted d-block text-end mt-2">Update: {{ date('M Y') }}</small>
                     </div>
                 </div>
 
@@ -506,17 +506,17 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <small class="text-muted fw-bold text-uppercase">Unit UMKM</small>
-                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ optional($profile)->umkm_count ?? '0' }}</h2>
+                                <small class="text-muted fw-bold text-uppercase">Total Kepala Keluarga</small>
+                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ number_format($totalKepalaKeluarga, 0, ',', '.') }}</h2>
                             </div>
                             <div class="icon-box bg-blue-soft">
-                                <i data-lucide="shopping-bag"></i>
+                                <i data-lucide="user-check"></i>
                             </div>
                         </div>
                         <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 60%"></div>
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 80%"></div>
                         </div>
-                        <small class="text-muted d-block text-end mt-2">Aktif Beroperasi</small>
+                        <small class="text-muted d-block text-end mt-2">Update: {{ date('M Y') }}</small>
                     </div>
                 </div>
             </div>
@@ -531,11 +531,11 @@
                     <h6 class="text-accent fw-bold text-uppercase ls-1 mb-2">Data & Fakta</h6>
                     <h1 class="fw-bold text-primary mb-3">Statistik Kependudukan</h1>
                     <p class="text-muted lead mb-4">
-                        Data pertumbuhan penduduk Desa Sukma tahun {{ $currentYear }}. 
-                        Grafik ini menampilkan tren angka kelahiran dan kematian secara real-time.
+                        Data mutasi penduduk Desa Sukma tahun {{ $currentYear }}. 
+                        Grafik ini menampilkan tren kelahiran, kematian, dan perpindahan penduduk secara real-time.
                     </p>
                     
-                    <div class="d-flex gap-4 mb-4">
+                    <div class="d-flex flex-wrap gap-3 mb-4">
                         <div class="d-flex align-items-center gap-2">
                             <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #00E396;"></span>
                             <span class="fw-bold text-dark">Kelahiran</span>
@@ -543,6 +543,14 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #FF4560;"></span>
                             <span class="fw-bold text-dark">Kematian</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #008FFB;"></span>
+                            <span class="fw-bold text-dark">Pindah Masuk</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #FEB019;"></span>
+                            <span class="fw-bold text-dark">Pindah Keluar</span>
                         </div>
                     </div>
                 </div>
@@ -845,22 +853,36 @@
                 }, {
                     name: 'Kematian',
                     data: @json($deathSeries)
+                }, {
+                    name: 'Pindah Masuk',
+                    data: @json($incomingSeries)
+                }, {
+                    name: 'Pindah Keluar',
+                    data: @json($outgoingSeries)
                 }],
                 chart: {
-                    type: 'area', // or 'line'
-                    height: 350,
+                    type: 'bar',
+                    height: 380,
                     toolbar: {
                         show: false
                     },
                     fontFamily: "'Plus Jakarta Sans', sans-serif"
                 },
-                colors: ['#00E396', '#FF4560'],
+                colors: ['#00E396', '#FF4560', '#008FFB', '#FEB019'],
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        borderRadius: 4
+                    }
+                },
                 dataLabels: {
                     enabled: false
                 },
                 stroke: {
-                    curve: 'smooth',
-                    width: 3
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
                 },
                 xaxis: {
                     categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'],
@@ -872,13 +894,7 @@
                     min: 0
                 },
                 fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.7,
-                        opacityTo: 0.2,
-                        stops: [0, 90, 100]
-                    }
+                    opacity: 1
                 },
                 tooltip: {
                     y: {
@@ -886,6 +902,11 @@
                             return val + " Jiwa"
                         }
                     }
+                },
+                legend: {
+                    show: true,
+                    position: 'top',
+                    horizontalAlign: 'center'
                 },
                 grid: {
                     borderColor: '#f1f1f1',

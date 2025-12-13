@@ -20,33 +20,49 @@ Route::get('/', function () {
     $galleries = Gallery::latest()->get();
     $totalPenduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
 
-    // Chart Data: Birth & Death per Month for Current Year
+    // New stat card data: Total Kartu Keluarga and Total Kepala Keluarga
+    $totalKK = \App\Models\KartuKeluarga::count();
+    $totalKepalaKeluarga = Penduduk::where('status_dasar', 'HIDUP')
+        ->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')
+        ->count();
+
+    // Chart Data: All mutation types per Month for Current Year (efficient single query)
     $currentYear = date('Y');
     
-    $birthData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+    $mutationData = Mutasi::selectRaw('jenis_mutasi, MONTH(tanggal_mutasi) as month, COUNT(*) as count')
         ->whereYear('tanggal_mutasi', $currentYear)
-        ->where('jenis_mutasi', 'LAHIR')
-        ->groupBy('month')
-        ->pluck('count', 'month')
-        ->toArray();
+        ->groupBy('jenis_mutasi', 'month')
+        ->get()
+        ->groupBy('jenis_mutasi');
 
-    $deathData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
-        ->whereYear('tanggal_mutasi', $currentYear)
-        ->where('jenis_mutasi', 'MATI')
-        ->groupBy('month')
-        ->pluck('count', 'month')
-        ->toArray();
+    // Extract data per mutation type
+    $birthData = isset($mutationData['LAHIR']) 
+        ? $mutationData['LAHIR']->pluck('count', 'month')->toArray() 
+        : [];
+    $deathData = isset($mutationData['MATI']) 
+        ? $mutationData['MATI']->pluck('count', 'month')->toArray() 
+        : [];
+    $incomingData = isset($mutationData['DATANG']) 
+        ? $mutationData['DATANG']->pluck('count', 'month')->toArray() 
+        : [];
+    $outgoingData = isset($mutationData['PINDAH']) 
+        ? $mutationData['PINDAH']->pluck('count', 'month')->toArray() 
+        : [];
 
     // Prepare arrays for 12 months
     $birthSeries = [];
     $deathSeries = [];
+    $incomingSeries = [];
+    $outgoingSeries = [];
     
     for ($i = 1; $i <= 12; $i++) {
         $birthSeries[] = $birthData[$i] ?? 0;
         $deathSeries[] = $deathData[$i] ?? 0;
+        $incomingSeries[] = $incomingData[$i] ?? 0;
+        $outgoingSeries[] = $outgoingData[$i] ?? 0;
     }
 
-    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'birthSeries', 'deathSeries', 'currentYear'));
+    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'totalKK', 'totalKepalaKeluarga', 'birthSeries', 'deathSeries', 'incomingSeries', 'outgoingSeries', 'currentYear'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {
