@@ -61,6 +61,9 @@
                     @endforeach
                 </select>
             </form>
+            <button type="button" class="btn btn-primary d-flex align-items-center gap-2 rounded-2 px-4 shadow-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#exportModal">
+                <i data-lucide="download" style="width: 18px;"></i> <span class="d-none d-sm-inline">Ekspor Laporan</span><span class="d-inline d-sm-none">Ekspor</span>
+            </button>
             <a href="{{ route('mutasi.create') }}" class="btn btn-primary d-flex align-items-center gap-2 rounded-2 px-4 shadow-sm text-nowrap">
                 <i data-lucide="plus" style="width: 18px;"></i> <span class="d-none d-sm-inline">Catat Mutasi</span><span class="d-inline d-sm-none">Catat</span>
             </a>
@@ -278,6 +281,118 @@
     </div>
 </div>
 
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-2">
+            <div class="modal-header bg-primary text-white border-0 px-4 py-3">
+                <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i data-lucide="download" style="width: 20px;"></i> Ekspor Laporan Mutasi
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('mutasi.export') }}" method="POST" id="exportForm">
+                @csrf
+                <div class="modal-body p-4 bg-light">
+                    <div class="card border-0 shadow-sm rounded-2 mb-3">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-primary text-uppercase mb-3 border-bottom pb-2">Tipe Laporan</h6>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="typeMonthly" value="monthly" checked>
+                                    <label class="form-check-label fw-medium" for="typeMonthly">
+                                        Per-bulan
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="typeYearly" value="yearly">
+                                    <label class="form-check-label fw-medium" for="typeYearly">
+                                        Per-tahun
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Selection -->
+                    <div class="card border-0 shadow-sm rounded-2 mb-3" id="monthlySection">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-primary text-uppercase mb-3 border-bottom pb-2">Pilih Bulan</h6>
+                            <div class="row g-2">
+                                @foreach($months as $m => $monthName)
+                                <div class="col-md-3 col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input monthly-checkbox" type="checkbox" name="months[]" value="{{ $m }}" id="month{{ $m }}">
+                                        <label class="form-check-label small" for="month{{ $m }}">
+                                            {{ $monthName }}
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label fw-bold small text-secondary">Tahun</label>
+                                <select name="monthly_year" id="monthlyYear" class="form-select" required>
+                                    <option value="">Pilih Tahun</option>
+                                    @foreach($years as $y)
+                                        <option value="{{ $y }}">{{ $y }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yearly Selection -->
+                    <div class="card border-0 shadow-sm rounded-2 mb-3 d-none" id="yearlySection">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-primary text-uppercase mb-3 border-bottom pb-2">Pilih Tahun</h6>
+                            <div class="row g-2">
+                                @foreach($years as $y)
+                                <div class="col-md-3 col-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input yearly-checkbox" type="checkbox" name="years[]" value="{{ $y }}" id="year{{ $y }}">
+                                        <label class="form-check-label small" for="year{{ $y }}">
+                                            {{ $y }}
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Format Selection -->
+                    <div class="card border-0 shadow-sm rounded-2">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-primary text-uppercase mb-3 border-bottom pb-2">Format File</h6>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="format" id="formatWord" value="docx" checked>
+                                    <label class="form-check-label fw-medium" for="formatWord">
+                                        <i data-lucide="file-text" style="width: 16px;" class="text-primary"></i> Word (.docx)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="format" id="formatPdf" value="pdf">
+                                    <label class="form-check-label fw-medium" for="formatPdf">
+                                        <i data-lucide="file" style="width: 16px;" class="text-danger"></i> PDF (.pdf)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-white px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-2 px-4 fw-bold text-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-2 px-4 fw-bold">
+                        <i data-lucide="download" style="width: 16px;"></i> Ekspor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Event Delegation for Detail Buttons
@@ -312,6 +427,72 @@
                 document.getElementById('edit-jenis').value = jenis;
                 document.getElementById('edit-tanggal').value = tanggal;
                 document.getElementById('edit-keterangan').value = keterangan;
+            }
+        });
+
+        // Export Modal Logic
+        const typeMonthly = document.getElementById('typeMonthly');
+        const typeYearly = document.getElementById('typeYearly');
+        const monthlySection = document.getElementById('monthlySection');
+        const yearlySection = document.getElementById('yearlySection');
+        const exportForm = document.getElementById('exportForm');
+
+        // Toggle between monthly and yearly sections
+        function toggleExportSections() {
+            if (typeMonthly.checked) {
+                monthlySection.classList.remove('d-none');
+                yearlySection.classList.add('d-none');
+                // Disable yearly checkboxes
+                document.querySelectorAll('.yearly-checkbox').forEach(cb => {
+                    cb.disabled = true;
+                    cb.checked = false;
+                });
+                // Enable monthly checkboxes
+                document.querySelectorAll('.monthly-checkbox').forEach(cb => cb.disabled = false);
+                document.getElementById('monthlyYear').disabled = false;
+            } else {
+                monthlySection.classList.add('d-none');
+                yearlySection.classList.remove('d-none');
+                // Disable monthly checkboxes
+                document.querySelectorAll('.monthly-checkbox').forEach(cb => {
+                    cb.disabled = true;
+                    cb.checked = false;
+                });
+                document.getElementById('monthlyYear').disabled = true;
+                // Enable yearly checkboxes
+                document.querySelectorAll('.yearly-checkbox').forEach(cb => cb.disabled = false);
+            }
+        }
+
+        typeMonthly.addEventListener('change', toggleExportSections);
+        typeYearly.addEventListener('change', toggleExportSections);
+
+        // Validate export form
+        exportForm.addEventListener('submit', function(e) {
+            const exportType = document.querySelector('input[name="export_type"]:checked').value;
+            
+            if (exportType === 'monthly') {
+                const checkedMonths = document.querySelectorAll('.monthly-checkbox:checked').length;
+                const selectedYear = document.getElementById('monthlyYear').value;
+                
+                if (checkedMonths === 0) {
+                    e.preventDefault();
+                    alert('Silakan pilih minimal satu bulan!');
+                    return false;
+                }
+                if (!selectedYear) {
+                    e.preventDefault();
+                    alert('Silakan pilih tahun!');
+                    return false;
+                }
+            } else {
+                const checkedYears = document.querySelectorAll('.yearly-checkbox:checked').length;
+                
+                if (checkedYears === 0) {
+                    e.preventDefault();
+                    alert('Silakan pilih minimal satu tahun!');
+                    return false;
+                }
             }
         });
     });

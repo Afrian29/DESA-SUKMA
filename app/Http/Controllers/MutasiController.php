@@ -368,4 +368,301 @@ class MutasiController extends Controller
 
         return redirect()->route('mutasi.index')->with('success', 'Data mutasi berhasil dihapus.');
     }
+
+    public function exportReport(Request $request)
+    {
+        $request->validate([
+            'export_type' => 'required|in:monthly,yearly',
+            'format' => 'required|in:pdf,docx',
+            'months' => 'required_if:export_type,monthly|array',
+            'monthly_year' => 'required_if:export_type,monthly',
+            'years' => 'required_if:export_type,yearly|array',
+        ]);
+
+        $exportType = $request->export_type;
+        $format = $request->format;
+        $files = [];
+
+        try {
+            if ($exportType === 'monthly') {
+                $year = $request->monthly_year;
+                $months = $request->months;
+                
+                foreach ($months as $month) {
+                    try {
+                        \Log::info('Generating monthly report', ['month' => $month, 'year' => $year, 'format' => $format]);
+                        $file = $this->generateMonthlyReport($month, $year, $format);
+                        if ($file && file_exists($file)) {
+                            $files[] = $file;
+                        } else {
+                            \Log::error('File not generated for monthly report', ['month' => $month, 'year' => $year, 'format' => $format, 'file_path' => $file]);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Error generating monthly report', [
+                            'month' => $month, 
+                            'year' => $year, 
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                        throw $e;
+                    }
+                }
+            } else {
+                $years = $request->years;
+                
+                foreach ($years as $year) {
+                    try {
+                        \Log::info('Generating yearly report', ['year' => $year, 'format' => $format]);
+                        $file = $this->generateYearlyReport($year, $format);
+                        if ($file && file_exists($file)) {
+                            $files[] = $file;
+                        } else {
+                            \Log::error('File not generated for yearly report', ['year' => $year, 'format' => $format, 'file_path' => $file]);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Error generating yearly report', [
+                            'year' => $year, 
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                        throw $e;
+                    }
+                }
+            }
+
+            if (empty($files)) {
+                return back()->with('error', 'Tidak ada file yang berhasil dibuat. Silakan cek log untuk detail.');
+            }
+
+            // If single file, download directly
+            if (count($files) === 1) {
+                return response()->download($files[0])->deleteFileAfterSend(true);
+            }
+
+            // Multiple files: create ZIP
+            $zipPath = storage_path('app/temp/Laporan_Mutasi_' . time() . '.zip');
+            $zip = new \ZipArchive();
+            
+            if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+                foreach ($files as $file) {
+                    $zip->addFile($file, basename($file));
+                }
+                $zip->close();
+
+                // Delete individual files
+                foreach ($files as $file) {
+                    @unlink($file);
+                }
+
+                return response()->download($zipPath)->deleteFileAfterSend(true);
+            }
+
+            throw new \Exception('Failed to create ZIP file');
+
+        } catch (\Exception $e) {
+            \Log::error('Export failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return back()->with('error', 'Export gagal: ' . $e->getMessage() . '. Silakan cek storage/logs/laravel.log untuk detail.');
+        }
+    }
+
+    private function generateMonthlyReport($month, $year, $format)
+    {
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $monthName = $monthNames[(int)$month];
+        
+        // Query data
+        $mutasis = Mutasi::with('penduduk.kartuKeluarga')
+            ->whereYear('tanggal_mutasi', $year)
+            ->whereMonth('tanggal_mutasi', $month)
+            ->orderBy('tanggal_mutasi')
+            ->get();
+
+        // Load template
+        $templatePath = storage_path('app/templates/Laporan_Mutasi_Per-bulan.docx');
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+
+        // Set basic variables
+        $templateProcessor->setValue('nama_bulan', $monthName);
+        $templateProcessor->setValue('tahun', $year);
+
+        // Group by type for tables - use filter() to avoid mutating original collection
+        $lahir = $mutasis->filter(function($m) { return $m->jenis_mutasi === 'LAHIR'; });
+        $mati = $mutasis->filter(function($m) { return $m->jenis_mutasi === 'MATI'; });
+        $datang = $mutasis->filter(function($m) { return $m->jenis_mutasi === 'DATANG'; });
+        $pindah = $mutasis->filter(function($m) { return $m->jenis_mutasi === 'PINDAH'; });
+
+        // Set totals
+        $templateProcessor->setValue('total_lahir', $lahir->count());
+        $templateProcessor->setValue('total_meninggal', $mati->count());
+        $templateProcessor->setValue('total_datang', $datang->count());
+        $templateProcessor->setValue('total_pindah', $pindah->count());
+
+        // Clone rows for each table (pass table number for unique placeholders)
+        $this->fillMutasiTable($templateProcessor, 'nomor_dusun', $lahir, '');
+        $this->fillMutasiTable($templateProcessor, 'nomor_dusun2', $mati, '2');
+        $this->fillMutasiTable($templateProcessor, 'nomor_dusun3', $datang, '3');
+        $this->fillMutasiTable($templateProcessor, 'nomor_dusun4', $pindah, '4');
+
+        // Save to temp directory
+        $fileName = $monthName . '_' . $year . '_Laporan_Mutasi';
+        $tempWordPath = storage_path('app/temp/' . $fileName . '.docx');
+        
+        // Create temp directory if not exists
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0777, true);
+        }
+
+        $templateProcessor->saveAs($tempWordPath);
+
+        // Convert to PDF if needed
+        if ($format === 'pdf') {
+            return $this->convertToPDF($tempWordPath, $fileName);
+        }
+
+        return $tempWordPath;
+    }
+
+    private function generateYearlyReport($year, $format)
+    {
+        // Query data grouped by month
+        $mutasis = Mutasi::selectRaw('MONTH(tanggal_mutasi) as bulan, jenis_mutasi, COUNT(*) as jumlah')
+            ->whereYear('tanggal_mutasi', $year)
+            ->groupBy('bulan', 'jenis_mutasi')
+            ->get();
+
+        // Organize data by month
+        $monthlyData = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthlyData[$m] = [
+                'LAHIR' => 0,
+                'MATI' => 0,
+                'DATANG' => 0,
+                'PINDAH' => 0,
+            ];
+        }
+
+        foreach ($mutasis as $item) {
+            $monthlyData[$item->bulan][$item->jenis_mutasi] = $item->jumlah;
+        }
+
+        // Load template
+        $templatePath = storage_path('app/templates/Laporan_Mutasi_Per-tahun.docx');
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+
+        // Set year
+        $templateProcessor->setValue('tahun', $year);
+
+        // Set totals
+        $totalLahir = array_sum(array_column($monthlyData, 'LAHIR'));
+        $totalMati = array_sum(array_column($monthlyData, 'MATI'));
+        $totalDatang = array_sum(array_column($monthlyData, 'DATANG'));
+        $totalPindah = array_sum(array_column($monthlyData, 'PINDAH'));
+
+        $templateProcessor->setValue('total_lahir', $totalLahir);
+        $templateProcessor->setValue('total_meninggal', $totalMati);
+        $templateProcessor->setValue('total_datang', $totalDatang);
+        $templateProcessor->setValue('total_pindah', $totalPindah);
+
+        // Fill monthly table
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $templateProcessor->cloneRow('nama_bulan', 12);
+        
+        foreach ($monthlyData as $month => $data) {
+            $i = $month;
+            $templateProcessor->setValue('nama_bulan#' . $i, $monthNames[$month]);
+            $templateProcessor->setValue('jumlah_lahir#' . $i, $data['LAHIR']);
+            $templateProcessor->setValue('jumlah_meninggal#' . $i, $data['MATI']);
+            $templateProcessor->setValue('jumlah_datang#' . $i, $data['DATANG']);
+            $templateProcessor->setValue('jumlah_pindah#' . $i, $data['PINDAH']);
+        }
+
+        // Save to temp directory
+        $fileName = $year . '_Laporan_Mutasi';
+        $tempWordPath = storage_path('app/temp/' . $fileName . '.docx');
+
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0777, true);
+        }
+
+        $templateProcessor->saveAs($tempWordPath);
+
+        // Convert to PDF if needed
+        if ($format === 'pdf') {
+            return $this->convertToPDF($tempWordPath, $fileName);
+        }
+
+        return $tempWordPath;
+    }
+
+    private function fillMutasiTable($templateProcessor, $rowKey, $mutasis, $tableNumber = '')
+    {
+        // Use table number suffix to differentiate placeholders between tables
+        $suffix = $tableNumber ? $tableNumber : '';
+        
+        if ($mutasis->count() > 0) {
+            $templateProcessor->cloneRow($rowKey, $mutasis->count());
+            
+            $i = 1;
+            foreach ($mutasis as $mutasi) {
+                $dusun = optional(optional($mutasi->penduduk)->kartuKeluarga)->dusun ?? '-';
+                $nama = optional($mutasi->penduduk)->nama_lengkap ?? 'Data Terhapus';
+                $jk = optional($mutasi->penduduk)->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
+                $tanggal = $mutasi->tanggal_mutasi->format('d-m-Y');
+                $lokasi = $mutasi->keterangan ?? '-';
+
+                $templateProcessor->setValue($rowKey . '#' . $i, $dusun);
+                $templateProcessor->setValue('nama_penduduk' . $suffix . '#' . $i, $nama);
+                $templateProcessor->setValue('jenis_kelamin' . $suffix . '#' . $i, $jk);
+                $templateProcessor->setValue('tanggal' . $suffix . '#' . $i, $tanggal);
+                $templateProcessor->setValue('lokasi' . $suffix . '#' . $i, $lokasi);
+                
+                $i++;
+            }
+        } else {
+            // Clone 1 row and fill with dash for empty data
+            try {
+                $templateProcessor->cloneRow($rowKey, 1);
+                $templateProcessor->setValue($rowKey . '#1', '-');
+                $templateProcessor->setValue('nama_penduduk' . $suffix . '#1', '-');
+                $templateProcessor->setValue('jenis_kelamin' . $suffix . '#1', '-');
+                $templateProcessor->setValue('tanggal' . $suffix . '#1', '-');
+                $templateProcessor->setValue('lokasi' . $suffix . '#1', '-');
+            } catch (\Exception $e) {
+                // If cloneRow fails (placeholder doesn't exist), just log warning
+                \Log::warning('Failed to clone row for empty data', ['rowKey' => $rowKey, 'error' => $e->getMessage()]);
+            }
+        }
+    }
+
+    private function convertToPDF($wordPath, $fileName)
+    {
+        $pdfPath = storage_path('app/temp/' . $fileName . '.pdf');
+
+        // Load Word document
+        $phpWord = \PhpOffice\PhpWord\IOFactory::load($wordPath);
+
+        // Configure PDF renderer
+        \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
+        \PhpOffice\PhpWord\Settings::setPdfRendererName(\PhpOffice\PhpWord\Settings::PDF_RENDERER_DOMPDF);
+
+        // Save as PDF
+        $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
+        $pdfWriter->save($pdfPath);
+
+        // Delete Word file
+
+        @unlink($wordPath);
+
+        return $pdfPath;
+    }
 }

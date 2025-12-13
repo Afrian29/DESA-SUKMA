@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/mutasi/pindah', [\App\Http\Controllers\MutasiController::class, 'storePindah'])->name('mutasi.store.pindah');
     Route::put('/admin/mutasi/{id}', [\App\Http\Controllers\MutasiController::class, 'update'])->name('mutasi.update');
     Route::delete('/admin/mutasi/{id}', [\App\Http\Controllers\MutasiController::class, 'destroy'])->name('mutasi.destroy');
+    Route::post('/admin/mutasi/export', [\App\Http\Controllers\MutasiController::class, 'exportReport'])->name('mutasi.export');
 
     // Village Profile Routes
     Route::get('/admin/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('admin.profile.index');
