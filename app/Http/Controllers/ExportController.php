@@ -16,9 +16,17 @@ class ExportController extends Controller
     public function exportPendudukWord()
     {
         // Get all penduduk with status_dasar = 'HIDUP'
+        // Order by: 1. KEPALA KELUARGA, 2. ISTRI, 3. ANAK, 4. Others
         $penduduks = Penduduk::where('status_dasar', 'HIDUP')
             ->orderBy('no_kk')
-            ->orderBy('status_hubungan_dalam_keluarga')
+            ->orderByRaw("
+                CASE status_hubungan_dalam_keluarga
+                    WHEN 'KEPALA KELUARGA' THEN 1
+                    WHEN 'ISTRI' THEN 2
+                    WHEN 'ANAK' THEN 3
+                    ELSE 4
+                END
+            ")
             ->get();
 
         // Calculate statistics

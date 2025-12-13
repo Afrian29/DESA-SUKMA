@@ -12,11 +12,22 @@ class MutasiController extends Controller
 {
     public function index(Request $request)
     {
-        $year = $request->input('year', date('Y'));
+        // Get filter values (null means "all")
+        $month = $request->input('month');
+        $year = $request->input('year');
         $jenisMutasi = $request->input('jenis_mutasi');
         
-        $query = Mutasi::with('penduduk.kartuKeluarga')
-            ->whereYear('tanggal_mutasi', $year);
+        $query = Mutasi::with('penduduk.kartuKeluarga');
+
+        // Apply year filter only if specific year is selected
+        if ($year) {
+            $query->whereYear('tanggal_mutasi', $year);
+        }
+
+        // Apply month filter only if specific month is selected
+        if ($month) {
+            $query->whereMonth('tanggal_mutasi', $month);
+        }
 
         if ($jenisMutasi) {
             $query->where('jenis_mutasi', $jenisMutasi);
@@ -35,17 +46,34 @@ class MutasiController extends Controller
         if ($years->isEmpty()) {
             $years = collect([date('Y')]);
         }
+
+        // Month names for dropdown
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
             
-        // Calculate Summary Stats for the selected year
-        $totalMutasi = Mutasi::whereYear('tanggal_mutasi', $year)->count();
-        $totalLahir = Mutasi::whereYear('tanggal_mutasi', $year)->where('jenis_mutasi', 'LAHIR')->count();
-        $totalMati = Mutasi::whereYear('tanggal_mutasi', $year)->where('jenis_mutasi', 'MATI')->count();
-        $totalDatang = Mutasi::whereYear('tanggal_mutasi', $year)->where('jenis_mutasi', 'DATANG')->count();
-        $totalPindah = Mutasi::whereYear('tanggal_mutasi', $year)->where('jenis_mutasi', 'PINDAH')->count();
+        // Calculate Summary Stats for the selected period
+        $statsQuery = Mutasi::query();
+        if ($year) {
+            $statsQuery->whereYear('tanggal_mutasi', $year);
+        }
+        if ($month) {
+            $statsQuery->whereMonth('tanggal_mutasi', $month);
+        }
+        
+        $totalMutasi = (clone $statsQuery)->count();
+        $totalLahir = (clone $statsQuery)->where('jenis_mutasi', 'LAHIR')->count();
+        $totalMati = (clone $statsQuery)->where('jenis_mutasi', 'MATI')->count();
+        $totalDatang = (clone $statsQuery)->where('jenis_mutasi', 'DATANG')->count();
+        $totalPindah = (clone $statsQuery)->where('jenis_mutasi', 'PINDAH')->count();
             
         return view('admin.mutasi.index', compact(
             'mutasis', 
-            'years', 
+            'years',
+            'months',
+            'month',
             'year',
             'totalMutasi',
             'totalLahir',
@@ -250,6 +278,7 @@ class MutasiController extends Controller
 
     public function storePindah(Request $request)
     {
+        // Always validate NIK first
         $request->validate([
             'nik' => 'required|exists:penduduks,nik',
             'tanggal_pindah' => 'required|date',
@@ -257,19 +286,54 @@ class MutasiController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($request) {
-            $penduduk = Penduduk::findOrFail($request->nik);
-            $penduduk->update(['status_dasar' => 'PINDAH']);
+        // Check if "Pindahkan Beserta Keluarga" checkbox is checked
+        $isFamilyMode = $request->has('pindah_keluarga') && $request->pindah_keluarga == '1';
 
-            Mutasi::create([
-                'nik' => $penduduk->nik,
-                'jenis_mutasi' => 'PINDAH',
-                'tanggal_mutasi' => $request->tanggal_pindah,
-                'keterangan' => $request->tujuan_pindah . ($request->keterangan ? ' - ' . $request->keterangan : ''),
-            ]);
-        });
+        if ($isFamilyMode) {
+            // FAMILY MODE: Get no_kk from the NIK, then bulk update all family members
+            $movedCount = 0;
 
-        return redirect()->route('mutasi.index')->with('success', 'Data kepindahan berhasil dicatat.');
+            DB::transaction(function () use ($request, &$movedCount) {
+                // First, get the penduduk to find their no_kk
+                $sourcePenduduk = Penduduk::findOrFail($request->nik);
+                $no_kk = $sourcePenduduk->no_kk;
+
+                // Get all living family members with the same no_kk
+                $members = Penduduk::where('no_kk', $no_kk)
+                    ->where('status_dasar', 'HIDUP')
+                    ->get();
+
+                foreach ($members as $penduduk) {
+                    $penduduk->update(['status_dasar' => 'PINDAH']);
+
+                    Mutasi::create([
+                        'nik' => $penduduk->nik,
+                        'jenis_mutasi' => 'PINDAH',
+                        'tanggal_mutasi' => $request->tanggal_pindah,
+                        'keterangan' => $request->tujuan_pindah . ($request->keterangan ? ' - ' . $request->keterangan : '') . ' (Pindah Satu Keluarga)',
+                    ]);
+
+                    $movedCount++;
+                }
+            });
+
+            return redirect()->route('mutasi.index')->with('success', "Data kepindahan satu keluarga berhasil dicatat ({$movedCount} anggota).");
+        } else {
+            // INDIVIDUAL MODE: Process only the selected penduduk
+            DB::transaction(function () use ($request) {
+                $penduduk = Penduduk::findOrFail($request->nik);
+                $penduduk->update(['status_dasar' => 'PINDAH']);
+
+                Mutasi::create([
+                    'nik' => $penduduk->nik,
+                    'jenis_mutasi' => 'PINDAH',
+                    'tanggal_mutasi' => $request->tanggal_pindah,
+                    'keterangan' => $request->tujuan_pindah . ($request->keterangan ? ' - ' . $request->keterangan : ''),
+                ]);
+            });
+
+            return redirect()->route('mutasi.index')->with('success', 'Data kepindahan berhasil dicatat.');
+        }
     }
 
     public function update(Request $request, $id)

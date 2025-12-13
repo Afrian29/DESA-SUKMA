@@ -37,5 +37,30 @@ class Penduduk extends Model
     {
         return $this->hasMany(Mutasi::class, 'nik', 'nik');
     }
+
+    /**
+     * Accessor: Format Status Hubungan Dalam Keluarga (SHDK)
+     * - KEPALA KELUARGA: UPPERCASE
+     * - Others: Title Case
+     */
+    public function getFormattedShdkAttribute()
+    {
+        $shdk = $this->status_hubungan_dalam_keluarga;
+        
+        if (empty($shdk)) {
+            return '-';
+        }
+
+        // Normalize to lowercase first
+        $normalized = strtolower(trim($shdk));
+
+        // KEPALA KELUARGA stays UPPERCASE
+        if ($normalized === 'kepala keluarga') {
+            return 'KEPALA KELUARGA';
+        }
+
+        // Others become Title Case
+        return ucwords($normalized);
+    }
     //
 }

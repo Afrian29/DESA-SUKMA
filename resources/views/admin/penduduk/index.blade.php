@@ -155,7 +155,7 @@
                                         {{ $penduduk->jenis_kelamin }}
                                     </span>
                                 </td>
-                                <td class="text-center text-secondary small">{{ $penduduk->status_hubungan_dalam_keluarga }}</td>
+                                <td class="text-center text-secondary small">{{ $penduduk->formatted_shdk }}</td>
                                 <td class="text-secondary">{{ $penduduk->pekerjaan }}</td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-2">
@@ -343,7 +343,18 @@
                 document.getElementById('modal-pendidikan').textContent = data.pendidikan_terakhir || '-';
                 document.getElementById('modal-pekerjaan').textContent = data.pekerjaan || '-';
 
-                document.getElementById('modal-hubungan').textContent = data.status_hubungan_dalam_keluarga || '-';
+                // Format SHDK: KEPALA KELUARGA uppercase, others Title Case
+                const shdk = data.status_hubungan_dalam_keluarga || '-';
+                let formattedShdk = shdk;
+                if (shdk !== '-') {
+                    const normalized = shdk.toLowerCase().trim();
+                    if (normalized === 'kepala keluarga') {
+                        formattedShdk = 'KEPALA KELUARGA';
+                    } else {
+                        formattedShdk = normalized.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    }
+                }
+                document.getElementById('modal-hubungan').textContent = formattedShdk;
 
                 // Populate Data KK
                 document.getElementById('modal-kk').textContent = data.no_kk || '-';
