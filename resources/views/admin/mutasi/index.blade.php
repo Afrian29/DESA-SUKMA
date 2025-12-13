@@ -70,15 +70,15 @@
     <div class="card border-0 shadow-sm rounded-2 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                <table class="table table-bordered table-hover align-middle mb-0">
+                    <thead class="bg-primary text-white">
                         <tr>
-                            <th class="px-4 py-3 text-secondary text-uppercase small fw-bold">Penduduk</th>
-                            <th class="px-4 py-3 text-secondary text-uppercase small fw-bold">Dusun</th>
-                            <th class="px-4 py-3 text-secondary text-uppercase small fw-bold">Jenis Mutasi</th>
-                            <th class="px-4 py-3 text-secondary text-uppercase small fw-bold">Tanggal</th>
-                            <th class="px-4 py-3 text-secondary text-uppercase small fw-bold">Lokasi</th>
-                            <th class="px-4 py-3 text-end pe-4 text-secondary text-uppercase small fw-bold">Aksi</th>
+                            <th class="px-4 py-3 text-white text-uppercase small fw-bold border-white bg-primary">Penduduk</th>
+                            <th class="px-4 py-3 text-white text-uppercase small fw-bold border-white bg-primary">Dusun</th>
+                            <th class="px-4 py-3 text-center text-white text-uppercase small fw-bold border-white bg-primary">Jenis Mutasi</th>
+                            <th class="px-4 py-3 text-center text-white text-uppercase small fw-bold border-white bg-primary">Tanggal</th>
+                            <th class="px-4 py-3 text-white text-uppercase small fw-bold border-white bg-primary">Lokasi</th>
+                            <th class="px-4 py-3 text-end pe-4 text-white text-uppercase small fw-bold border-white bg-primary">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>

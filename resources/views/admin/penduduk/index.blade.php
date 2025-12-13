@@ -119,18 +119,18 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle mb-0">
-                    <thead class="bg-danger text-white">
+                    <thead class="bg-primary text-white">
                         <tr>
-                            <th class="py-3 text-center text-uppercase small fw-bold border-white">No. KK</th>
-                            <th class="py-3 text-center text-uppercase small fw-bold border-white">NIK</th>
-                            <th class="py-3 text-uppercase small fw-bold border-white">Nama Lengkap</th>
-                            <th class="py-3 text-uppercase small fw-bold border-white">Tempat tanggal lahir</th>
-                            <th class="py-3 text-uppercase small fw-bold border-white">Usia</th>
-                            <th class="py-3 text-center text-uppercase small fw-bold border-white">Kelamin</th>
-                            <th class="py-3 text-center text-uppercase small fw-bold border-white">Hubungan Keluarga</th>
+                            <th class="py-3 text-center text-white text-uppercase small fw-bold border-white bg-primary">No. KK</th>
+                            <th class="py-3 text-center text-white text-uppercase small fw-bold border-white bg-primary">NIK</th>
+                            <th class="py-3 text-white text-uppercase small fw-bold border-white bg-primary">Nama Lengkap</th>
+                            <th class="py-3 text-white text-uppercase small fw-bold border-white bg-primary">Tempat tanggal lahir</th>
+                            <th class="py-3 text-white text-uppercase small fw-bold border-white bg-primary">Usia</th>
+                            <th class="py-3 text-center text-white text-uppercase small fw-bold border-white bg-primary">Kelamin</th>
+                            <th class="py-3 text-center text-white text-uppercase small fw-bold border-white bg-primary">Hubungan Keluarga</th>
                             <!-- <th class="py-3 text-center text-uppercase small fw-bold border-white">Dusun</th> -->
-                            <th class="py-3 text-uppercase small fw-bold border-white">Pekerjaan</th>
-                            <th class="py-3 text-end pe-4 text-uppercase small fw-bold border-white">Aksi</th>
+                            <th class="py-3 text-white text-uppercase small fw-bold border-white bg-primary">Pekerjaan</th>
+                            <th class="py-3 text-end pe-4 text-white text-uppercase small fw-bold border-white bg-primary">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="border-top-0">
