@@ -475,29 +475,94 @@
                                 <i data-lucide="users"></i>
                             </div>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+@php
+                            $persenLaki = $totalPenduduk > 0 ? ($pendudukLaki / $totalPenduduk) * 100 : 0;
+                            $persenPerempuan = $totalPenduduk > 0 ? ($pendudukPerempuan / $totalPenduduk) * 100 : 0;
+                        @endphp
+                        
+                        <!-- Split Progress Bar -->
+                        <div class="progress my-3 rounded-pill" style="height: 10px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $persenLaki }}%" aria-valuenow="{{ $persenLaki }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: {{ $persenPerempuan }}%; background-color: #ffc107;" aria-valuenow="{{ $persenPerempuan }}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <small class="text-muted d-block text-end mt-2">Update: {{ date('M Y') }}</small>
+
+                        <!-- Gender Breakdown -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Male (Left) -->
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3" style="width: 36px; height: 36px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mars"><path d="M16 3h5v5"/><path d="M21 3 13.5 10.5"/><circle cx="10" cy="14" r="5"/></svg>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block opacity-75" style="font-size: 0.7rem; line-height: 1;">Laki-laki</small>
+                                    <span class="fw-bold text-dark fs-5">{{ number_format($pendudukLaki, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Female (Right) -->
+                            <div class="d-flex align-items-center gap-2 text-end">
+                                <div>
+                                    <small class="text-muted d-block opacity-75" style="font-size: 0.7rem; line-height: 1;">Perempuan</small>
+                                    <span class="fw-bold text-dark fs-5">{{ number_format($pendudukPerempuan, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 36px; height: 36px; background-color: #fff9db; color: #ffc107;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-venus"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12"/><path d="M12 15v7"/><path d="M9 19h6"/></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <small class="text-muted d-block text-end mt-2" style="font-size: 0.65rem;">Update: {{ date('M Y') }}</small>
                     </div>
                 </div>
                 
                 <!-- Stat 2 -->
                 <div class="col-md-4 reveal">
                     <div class="stat-card accent-border">
+@php
+                            $persenKKLaki = $totalKK > 0 ? ($kkLaki / $totalKK) * 100 : 0;
+                            $persenKKPerempuan = $totalKK > 0 ? ($kkPerempuan / $totalKK) * 100 : 0;
+                        @endphp
+
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <small class="text-muted fw-bold text-uppercase">Luas Wilayah</small>
-                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ optional($profile)->luas_wilayah ?? '0' }} <span class="fs-5 text-muted">Ha</span></h2>
+                                <small class="text-muted fw-bold text-uppercase">Total Kepala Keluarga</small>
+                                <h2 class="display-5 fw-bold text-primary mt-1 mb-0">{{ number_format($totalKK, 0, ',', '.') }}</h2>
                             </div>
                             <div class="icon-box bg-yellow-soft">
-                                <i data-lucide="map"></i>
+                                <i data-lucide="users"></i>
                             </div>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-accent" role="progressbar" style="width: 100%"></div>
+
+                        <!-- Split Progress Bar -->
+                        <div class="progress my-3 rounded-pill" style="height: 10px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $persenKKLaki }}%" aria-valuenow="{{ $persenKKLaki }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: {{ $persenKKPerempuan }}%; background-color: #ffc107;" aria-valuenow="{{ $persenKKPerempuan }}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <small class="text-muted d-block text-end mt-2">Wilayah Produktif</small>
+
+                        <!-- Gender Breakdown -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Male (Left) -->
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3" style="width: 36px; height: 36px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mars"><path d="M16 3h5v5"/><path d="M21 3 13.5 10.5"/><circle cx="10" cy="14" r="5"/></svg>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block opacity-75" style="font-size: 0.7rem; line-height: 1;">Laki-laki</small>
+                                    <span class="fw-bold text-dark fs-5">{{ number_format($kkLaki, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Female (Right) -->
+                            <div class="d-flex align-items-center gap-2 text-end">
+                                <div>
+                                    <small class="text-muted d-block opacity-75" style="font-size: 0.7rem; line-height: 1;">Perempuan</small>
+                                    <span class="fw-bold text-dark fs-5">{{ number_format($kkPerempuan, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 36px; height: 36px; background-color: #fff9db; color: #ffc107;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-venus"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12"/><path d="M12 15v7"/><path d="M9 19h6"/></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -19,6 +19,12 @@ Route::get('/', function () {
     $institutions = Institution::all();
     $galleries = Gallery::latest()->get();
     $totalPenduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
+    $pendudukLaki = Penduduk::where('status_dasar', 'HIDUP')->where('jenis_kelamin', 'L')->count();
+    $pendudukPerempuan = Penduduk::where('status_dasar', 'HIDUP')->where('jenis_kelamin', 'P')->count();
+
+    $totalKK = Penduduk::where('status_dasar', 'HIDUP')->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')->count();
+    $kkLaki = Penduduk::where('status_dasar', 'HIDUP')->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')->where('jenis_kelamin', 'L')->count();
+    $kkPerempuan = Penduduk::where('status_dasar', 'HIDUP')->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')->where('jenis_kelamin', 'P')->count();
 
     // Chart Data: Birth & Death per Month for Current Year
     $currentYear = date('Y');
@@ -46,7 +52,7 @@ Route::get('/', function () {
         $deathSeries[] = $deathData[$i] ?? 0;
     }
 
-    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'birthSeries', 'deathSeries', 'currentYear'));
+    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'pendudukLaki', 'pendudukPerempuan', 'totalKK', 'kkLaki', 'kkPerempuan', 'birthSeries', 'deathSeries', 'currentYear'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {
