@@ -205,7 +205,10 @@ class MutasiController extends Controller
                 ]);
                 
                 if ($request->status_hubungan_dalam_keluarga[$index] === 'KEPALA KELUARGA') {
-                    $kk->update(['kepala_keluarga' => $request->nama_lengkap[$index]]);
+                    $kk->update([
+                        'kepala_keluarga' => $request->nama_lengkap[$index],
+                        'kepala_keluarga_nik' => $penduduk->nik
+                    ]);
                 }
 
                 Mutasi::create([
@@ -258,7 +261,10 @@ class MutasiController extends Controller
                     // Update Kartu Keluarga Record
                     $kk = KartuKeluarga::where('no_kk', $penduduk->no_kk)->first();
                     if ($kk) {
-                        $kk->update(['kepala_keluarga' => $replacement->nama_lengkap]);
+                        $kk->update([
+                            'kepala_keluarga' => $replacement->nama_lengkap,
+                            'kepala_keluarga_nik' => $replacement->nik
+                        ]);
                     }
                 }
             }

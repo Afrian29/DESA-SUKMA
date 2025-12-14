@@ -679,56 +679,45 @@
                             <i data-lucide="quote" class="text-accent mb-3" style="width: 32px;"></i>
                             <h3 class="text-white fw-bold mb-3">Visi</h3>
                             <p class="lead text-white mb-0 fst-italic">
-                                "Terwujudnya Desa Sukma yang Mandiri, Maju, dan Sejahtera Berlandaskan Gotong Royong."
+                                "{{ $profile->visi ?? 'Terwujudnya Desa Sukma yang Mandiri, Maju, dan Sejahtera Berlandaskan Gotong Royong.' }}"
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Misi Column (Scrollable) -->
-                <div class="col-lg-8 reveal">
-                    <div id="misi-scroll-container" class="d-flex flex-nowrap overflow-auto pb-4 gap-4" style="cursor: grab; scrollbar-width: none; -ms-overflow-style: none;">
-                        <!-- Misi 1 -->
-                        <div class="col-10 col-md-5 flex-shrink-0">
-                            <div class="mission-card-outer user-select-none">
-                                <div class="mission-card-inner">
-                                    <h5 class="fw-bold text-primary">Tata Kelola Transparan</h5>
-                                    <p class="text-muted small mb-0">Mewujudkan pemerintahan desa yang akuntabel, terbuka, dan melayani masyarakat.</p>
+                <div class="col-lg-8 reveal delay-1">
+                    <div class="row g-4">
+                        @if($missions->count() > 0)
+                            @foreach($missions as $index => $misi)
+                            <div class="col-md-6">
+                                <div class="mission-card-outer user-select-none h-100">
+                                    <div class="mission-card-inner">
+                                        <h5 class="fw-bold text-primary">{{ $misi->title }}</h5>
+                                        <p class="text-muted small mb-0">{{ $misi->content }}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Misi 2 -->
-                        <div class="col-10 col-md-5 flex-shrink-0">
-                            <div class="mission-card-outer user-select-none">
-                                <div class="mission-card-inner">
-                                    <h5 class="fw-bold text-primary">SDM Unggul</h5>
-                                    <p class="text-muted small mb-0">Meningkatkan kualitas pendidikan dan kesehatan yang terjangkau bagi semua.</p>
+                            @endforeach
+                        @else
+                            <!-- Fallback Default Data if Database Empty -->
+                            <div class="col-md-6">
+                                <div class="mission-card-outer user-select-none h-100">
+                                    <div class="mission-card-inner">
+                                        <h5 class="fw-bold text-primary">Tata Kelola Transparan</h5>
+                                        <p class="text-muted small mb-0">Mewujudkan pemerintahan desa yang akuntabel, terbuka, dan melayani masyarakat.</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Misi 3 -->
-                        <div class="col-10 col-md-5 flex-shrink-0">
-                            <div class="mission-card-outer user-select-none">
-                                <div class="mission-card-inner">
-                                    <h5 class="fw-bold text-primary">Ekonomi Kerakyatan</h5>
-                                    <p class="text-muted small mb-0">Mengembangkan potensi UMKM dan pariwisata berbasis kearifan lokal.</p>
+                            <div class="col-md-6">
+                                <div class="mission-card-outer user-select-none h-100">
+                                    <div class="mission-card-inner">
+                                        <h5 class="fw-bold text-primary">SDM Unggul</h5>
+                                        <p class="text-muted small mb-0">Meningkatkan kualitas pendidikan dan kesehatan yang terjangkau bagi semua.</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Misi 4 -->
-                        <div class="col-10 col-md-5 flex-shrink-0">
-                            <div class="mission-card-outer user-select-none">
-                                <div class="mission-card-inner">
-                                    <h5 class="fw-bold text-primary">Infrastruktur Hijau</h5>
-                                    <p class="text-muted small mb-0">Pembangunan berkelanjutan yang memperhatikan kelestarian lingkungan.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Scroll Indicator Hint -->
-                    <div class="d-flex align-items-center gap-2 text-white-50 mt-2 small">
-                         <i data-lucide="arrow-left-right" style="width: 16px;"></i>
-                         <span>Geser atau tarik untuk melihat lebih banyak</span>
+                        @endif
                     </div>
                 </div>
             </div>

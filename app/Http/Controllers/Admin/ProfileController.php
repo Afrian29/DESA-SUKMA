@@ -8,6 +8,7 @@ use App\Models\VillageProfile;
 use App\Models\Official;
 use App\Models\Institution;
 use App\Models\Gallery;
+use App\Models\Mission;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
@@ -18,19 +19,20 @@ class ProfileController extends Controller
         $officials = Official::orderBy('order')->get();
         $institutions = Institution::all();
         $galleries = Gallery::latest()->get();
+        $missions = Mission::all();
 
-        return view('admin.profile.index', compact('profile', 'officials', 'institutions', 'galleries'));
+        return view('admin.profile.index', compact('profile', 'officials', 'institutions', 'galleries', 'missions'));
     }
 
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'kades_name' => 'required|string|max:255',
-            'sambutan_title' => 'required|string|max:255',
-            'sambutan_content' => 'required|string',
+            'kades_name' => 'sometimes|required|string|max:255',
+            'sambutan_title' => 'sometimes|required|string|max:255',
+            'sambutan_content' => 'sometimes|required|string',
             'kades_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'luas_wilayah' => 'nullable|string|max:255',
-            'umkm_count' => 'nullable|integer|min:0',
+            'visi' => 'nullable|string',
+            'misi' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -41,12 +43,14 @@ class ProfileController extends Controller
         }
 
         $profile = VillageProfile::firstOrNew();
-        $profile->kades_name = $request->kades_name;
-        $profile->sambutan_title = $request->sambutan_title;
-        $profile->sambutan_content = $request->sambutan_content;
-        $profile->video_url = $request->video_url;
-        $profile->luas_wilayah = $request->luas_wilayah;
-        $profile->umkm_count = $request->umkm_count;
+
+        // Only update fields that are present in the request
+        if ($request->has('kades_name')) $profile->kades_name = $request->kades_name;
+        if ($request->has('sambutan_title')) $profile->sambutan_title = $request->sambutan_title;
+        if ($request->has('sambutan_content')) $profile->sambutan_content = $request->sambutan_content;
+        if ($request->has('video_url')) $profile->video_url = $request->video_url;
+        if ($request->has('visi')) $profile->visi = $request->visi;
+        if ($request->has('misi')) $profile->misi = $request->misi;
 
         if ($request->hasFile('kades_photo')) {
             // Hapus foto lama jika ada
@@ -63,6 +67,8 @@ class ProfileController extends Controller
 
         $profile->save();
 
-        return redirect()->back()->with('success', 'Profil Desa berhasil diperbarui.')->with('active_tab', 'kades');
+        // Determine active tab for redirect
+        $activeTab = $request->has('visi') ? 'visimisi' : 'kades';
+        return redirect()->back()->with('success', 'Profil Desa berhasil diperbarui.')->with('active_tab', $activeTab);
     }
 }

@@ -18,6 +18,7 @@ Route::get('/', function () {
     $officials = Official::orderBy('order')->get();
     $institutions = Institution::all();
     $galleries = Gallery::latest()->get();
+    $missions = \App\Models\Mission::all();
     $totalPenduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
     $pendudukLaki = Penduduk::where('status_dasar', 'HIDUP')->where('jenis_kelamin', 'L')->count();
     $pendudukPerempuan = Penduduk::where('status_dasar', 'HIDUP')->where('jenis_kelamin', 'P')->count();
@@ -43,16 +44,34 @@ Route::get('/', function () {
         ->pluck('count', 'month')
         ->toArray();
 
+    $incomingData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $currentYear)
+        ->where('jenis_mutasi', 'DATANG')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    $outgoingData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $currentYear)
+        ->where('jenis_mutasi', 'PINDAH')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
     // Prepare arrays for 12 months
     $birthSeries = [];
     $deathSeries = [];
+    $incomingSeries = [];
+    $outgoingSeries = [];
     
     for ($i = 1; $i <= 12; $i++) {
         $birthSeries[] = $birthData[$i] ?? 0;
         $deathSeries[] = $deathData[$i] ?? 0;
+        $incomingSeries[] = $incomingData[$i] ?? 0;
+        $outgoingSeries[] = $outgoingData[$i] ?? 0;
     }
 
-    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'pendudukLaki', 'pendudukPerempuan', 'totalKK', 'kkLaki', 'kkPerempuan', 'birthSeries', 'deathSeries', 'currentYear'));
+    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'missions', 'totalPenduduk', 'pendudukLaki', 'pendudukPerempuan', 'totalKK', 'kkLaki', 'kkPerempuan', 'birthSeries', 'deathSeries', 'incomingSeries', 'outgoingSeries', 'currentYear'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {
@@ -102,4 +121,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/gallery', [\App\Http\Controllers\Admin\GalleryController::class, 'store'])->name('admin.gallery.store');
     Route::put('/admin/gallery/{id}', [\App\Http\Controllers\Admin\GalleryController::class, 'update'])->name('admin.gallery.update');
     Route::delete('/admin/gallery/{id}', [\App\Http\Controllers\Admin\GalleryController::class, 'destroy'])->name('admin.gallery.destroy');
+
+    // Mission Routes
+    Route::post('/admin/mission', [\App\Http\Controllers\Admin\MissionController::class, 'store'])->name('admin.mission.store');
+    Route::put('/admin/mission/{id}', [\App\Http\Controllers\Admin\MissionController::class, 'update'])->name('admin.mission.update');
+    Route::delete('/admin/mission/{id}', [\App\Http\Controllers\Admin\MissionController::class, 'destroy'])->name('admin.mission.destroy');
 });
