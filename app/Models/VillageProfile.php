@@ -17,5 +17,7 @@ class VillageProfile extends Model
         'video_url',
         'luas_wilayah',
         'umkm_count',
+        'visi',
+        'misi',
     ];
 }

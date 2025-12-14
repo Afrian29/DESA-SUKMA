@@ -34,6 +34,7 @@
             background-color: var(--color-surface);
             color: #334155;
             overflow-x: hidden;
+            zoom: 0.8; /* Global UI Scale */
         }
 
         /* Sidebar */
@@ -41,7 +42,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            height: 100vh;
+            height: 125vh; /* Compensate for zoom: 0.8 (100/0.8 = 125) */
             width: var(--sidebar-width);
             background-color: white;
             border-right: 1px solid rgba(0,0,0,0.05);
@@ -141,12 +142,26 @@
             gap: 1rem;
         }
 
+        /* Fix Modal Backdrop for Zoomed Body */
+        .modal-backdrop {
+            width: 125% !important;
+            height: 125% !important;
+        }
+
+        /* Responsive Sidebar */
         @media (max-width: 768px) {
             .sidebar {
-                width: 70px;
+                width: 100%;
+                height: auto;
+                position: relative;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 0.5rem 1rem;
+                align-items: center;
+                zoom: 1; /* Reset zoom on mobile if needed or keep consistent */
             }
             .main-content {
-                margin-left: 70px;
+                margin-left: 0; /* No margin on mobile */
                 padding: 0 1rem 1rem 1rem;
             }
             .top-header {
@@ -285,22 +300,25 @@
                     <i data-lucide="building-2" style="width: 22px;"></i>
                 </a>
             </div>
-            <div class="nav-item">
+
+        </div>
+
+        <div class="mt-auto w-100">
+            <div class="nav-item mb-2">
                 <a href="{{ route('home') }}" class="nav-link" title="Lihat Website" target="_blank">
                     <i data-lucide="globe" style="width: 22px;"></i>
                 </a>
             </div>
-        </div>
-
-        <div class="mt-auto nav-item">
-            <a href="{{ route('logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-               class="nav-link text-danger" title="Logout">
-                <i data-lucide="log-out" style="width: 22px;"></i>
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                @csrf
-            </form>
+            <div class="nav-item">
+                <a href="{{ route('logout') }}" 
+                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                   class="nav-link text-danger" title="Logout">
+                    <i data-lucide="log-out" style="width: 22px;"></i>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
         </div>
     </aside>
 

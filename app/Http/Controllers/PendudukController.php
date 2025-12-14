@@ -33,7 +33,8 @@ class PendudukController extends Controller
             $search = request('search');
             $query->where(function($q) use ($search) {
                 $q->where('nama_lengkap', 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%');
+                  ->orWhere('nik', 'like', '%' . $search . '%')
+                  ->orWhere('no_kk', 'like', '%' . $search . '%');
             });
         }
 
@@ -149,17 +150,23 @@ class PendudukController extends Controller
             $namaKepalaKeluarga = '-';
 
             // 2. Create Anggota Keluarga
+            $nikKepalaKeluarga = null;
+
             foreach ($request->anggota as $anggotaData) {
                 $anggotaData['no_kk'] = $kk->no_kk;
                 \App\Models\Penduduk::create($anggotaData);
 
                 if ($anggotaData['status_hubungan_dalam_keluarga'] === 'KEPALA KELUARGA') {
+                    $nikKepalaKeluarga = $anggotaData['nik'];
                     $namaKepalaKeluarga = $anggotaData['nama_lengkap'];
                 }
             }
 
-            // 3. Update Kepala Keluarga Name
-            $kk->update(['kepala_keluarga' => $namaKepalaKeluarga]);
+            // 3. Update Kepala Keluarga (Link NIK & Legacy Name)
+            $kk->update([
+                'kepala_keluarga' => $namaKepalaKeluarga,
+                'kepala_keluarga_nik' => $nikKepalaKeluarga
+            ]);
         });
 
         return redirect()->route('penduduk.index')->with('success', 'Data keluarga berhasil ditambahkan.');
@@ -167,9 +174,31 @@ class PendudukController extends Controller
     public function searchKK(Request $request)
     {
         $query = $request->get('q');
-        $kks = \App\Models\KartuKeluarga::where('no_kk', 'like', "%{$query}%")
+        $kks = \App\Models\KartuKeluarga::with('kepalaKeluarga')
+            ->where('no_kk', 'like', "%{$query}%")
+            ->orWhereHas('kepalaKeluarga', function($q) use ($query) {
+                $q->where('nama_lengkap', 'like', "%{$query}%");
+            })
+            // Fallback search for unlinked records (legacy)
+            ->orWhere(function($q) use ($query) {
+                 $q->whereNull('kepala_keluarga_nik')
+                   ->where('kepala_keluarga', 'like', "%{$query}%");
+            })
             ->limit(10)
-            ->get(['no_kk', 'kepala_keluarga', 'dusun', 'status_kesejahteraan', 'jenis_bangunan', 'pemakaian_air', 'jenis_bantuan']);
+            ->get();
+            
+        // Transform for frontend
+        $kks = $kks->map(function($kk) {
+            return [
+                'no_kk' => $kk->no_kk,
+                'kepala_keluarga' => $kk->nama_kepala, // Uses accessor
+                'dusun' => $kk->dusun,
+                'status_kesejahteraan' => $kk->status_kesejahteraan,
+                'jenis_bangunan' => $kk->jenis_bangunan,
+                'pemakaian_air' => $kk->pemakaian_air,
+                'jenis_bantuan' => $kk->jenis_bantuan
+            ];
+        });
             
         return response()->json($kks);
     }

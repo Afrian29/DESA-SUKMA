@@ -18,6 +18,7 @@ Route::get('/', function () {
     $officials = Official::orderBy('order')->get();
     $institutions = Institution::all();
     $galleries = Gallery::latest()->get();
+    $missions = \App\Models\Mission::all();
     $totalPenduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
 
     // New stat card data: Total Kartu Keluarga and Total Kepala Keluarga
@@ -62,7 +63,7 @@ Route::get('/', function () {
         $outgoingSeries[] = $outgoingData[$i] ?? 0;
     }
 
-    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'totalPenduduk', 'totalKK', 'totalKepalaKeluarga', 'birthSeries', 'deathSeries', 'incomingSeries', 'outgoingSeries', 'currentYear'));
+    return view('home', compact('profile', 'officials', 'institutions', 'galleries', 'missions', 'totalPenduduk', 'totalKK', 'totalKepalaKeluarga', 'birthSeries', 'deathSeries', 'incomingSeries', 'outgoingSeries', 'currentYear'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {
@@ -111,4 +112,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/gallery', [\App\Http\Controllers\Admin\GalleryController::class, 'store'])->name('admin.gallery.store');
     Route::put('/admin/gallery/{id}', [\App\Http\Controllers\Admin\GalleryController::class, 'update'])->name('admin.gallery.update');
     Route::delete('/admin/gallery/{id}', [\App\Http\Controllers\Admin\GalleryController::class, 'destroy'])->name('admin.gallery.destroy');
+
+    // Mission Routes
+    Route::post('/admin/mission', [\App\Http\Controllers\Admin\MissionController::class, 'store'])->name('admin.mission.store');
+    Route::put('/admin/mission/{id}', [\App\Http\Controllers\Admin\MissionController::class, 'update'])->name('admin.mission.update');
+    Route::delete('/admin/mission/{id}', [\App\Http\Controllers\Admin\MissionController::class, 'destroy'])->name('admin.mission.destroy');
 });

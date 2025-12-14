@@ -120,7 +120,10 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-secondary">Nomor KK Orang Tua</label>
-                                <input type="text" class="form-control bg-light border-0" name="no_kk" required maxlength="16" placeholder="16 digit Nomor KK">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control bg-light border-0" name="no_kk" id="searchKKLahir" required maxlength="16" placeholder="Cari No KK / Nama Kepala Keluarga..." autocomplete="off">
+                                    <div id="searchResultsLahir" class="position-absolute w-100 bg-white shadow-lg rounded-1 mt-1 overflow-hidden" style="z-index: 1000; display: none; border: 1px solid rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-secondary">NIK Bayi</label>
@@ -431,7 +434,7 @@
         if (selectedForm) {
             selectedForm.classList.remove('d-none');
             // Scroll to form
-            selectedForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // selectedForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
             // Re-initialize icons if needed
             if (typeof lucide !== 'undefined') {
@@ -797,6 +800,66 @@
 
                 // Load family members preview
                 loadFamilyMembers(kk.no_kk);
+            });
+
+            // KK Search for Birth Form
+            const searchKKLahir = $('#searchKKLahir');
+            const resultsKKLahir = $('#searchResultsLahir');
+            let kkLahirTimeout;
+
+            if (searchKKLahir.length) {
+                searchKKLahir.on('input', function() {
+                    clearTimeout(kkLahirTimeout);
+                    const query = $(this).val();
+
+                    if (query.length < 3) {
+                        resultsKKLahir.hide();
+                        return;
+                    }
+
+                    kkLahirTimeout = setTimeout(() => {
+                        $.ajax({
+                            url: '{{ route("api.kk.search") }}',
+                            data: { q: query },
+                            success: function(data) {
+                                resultsKKLahir.empty();
+                                if (data.length > 0) {
+                                    data.forEach(kk => {
+                                        const item = `
+                                            <div class="p-3 border-bottom cursor-pointer hover-bg-light search-item-kk-lahir" 
+                                                 data-kk='${JSON.stringify(kk)}'>
+                                                <div class="fw-bold text-primary">${kk.no_kk}</div>
+                                                <div class="small text-secondary">Kepala: ${kk.kepala_keluarga || '-'} | Dusun: ${kk.dusun}</div>
+                                            </div>
+                                        `;
+                                        resultsKKLahir.append(item);
+                                    });
+                                    resultsKKLahir.show();
+                                } else {
+                                    resultsKKLahir.hide();
+                                }
+                            }
+                        });
+                    }, 300);
+                });
+            }
+
+            // Handle KK Selection for Birth Form
+            $(document).on('click', '.search-item-kk-lahir', function() {
+                const kk = $(this).data('kk');
+                searchKKLahir.val(kk.no_kk);
+                resultsKKLahir.hide();
+            });
+
+            // Close results when clicking outside (Added for new elements)
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.position-relative').length) {
+                    resultsContainer.hide();
+                    $('#searchResultsPindah').hide();
+                    $('#searchResultsMati').hide();
+                    resultsKKPindah.hide();
+                    resultsKKLahir.hide();
+                }
             });
 
             // Load Family Members for Preview

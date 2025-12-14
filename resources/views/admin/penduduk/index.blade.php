@@ -206,7 +206,7 @@
 <!-- Detail Modal -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2">
+        <div class="modal-content border-0 shadow-sm rounded-2">
             <div class="modal-header bg-primary text-white border-0 px-4 py-3">
                 <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i data-lucide="user" style="width: 20px;"></i> Detail Penduduk <span id="modal-title-nama" class="fw-bold"></span>
@@ -358,7 +358,8 @@
 
                 // Populate Data KK
                 document.getElementById('modal-kk').textContent = data.no_kk || '-';
-                document.getElementById('modal-kepala').textContent = kk.kepala_keluarga || '-';
+                // Use smart accessor 'nama_kepala' if available, otherwise fallback
+                document.getElementById('modal-kepala').textContent = kk.nama_kepala || kk.kepala_keluarga || '-';
                 document.getElementById('modal-dusun').textContent = (kk.dusun || '-').replace('Dusun ', '');
                 document.getElementById('modal-ks').textContent = kk.status_kesejahteraan || '-';
                 document.getElementById('modal-bangunan').textContent = kk.jenis_bangunan || '-';
