@@ -597,10 +597,26 @@
                     <h1 class="fw-bold text-primary mb-3">Statistik Kependudukan</h1>
                     <p class="text-muted lead mb-4">
                         Data pertumbuhan penduduk Desa Sukma tahun {{ $currentYear }}. 
-                        Grafik ini menampilkan tren angka kelahiran dan kematian secara real-time.
+                        Grafik ini menampilkan tren angka kelahiran, kematian, dan perpindahan penduduk secara real-time.
                     </p>
+
+                    <!-- Filter Tahun -->
+                    <div class="mb-4">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <label for="yearFilter" class="col-form-label fw-bold">Pilih Tahun:</label>
+                            </div>
+                            <div class="col-auto">
+                                <select id="yearFilter" class="form-select w-auto">
+                                    @for($y = date('Y'); $y >= date('Y') - 2; $y--)
+                                        <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div class="d-flex gap-4 mb-4">
+                    <div class="d-flex flex-wrap gap-3 mb-4">
                         <div class="d-flex align-items-center gap-2">
                             <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #00E396;"></span>
                             <span class="fw-bold text-dark">Kelahiran</span>
@@ -608,6 +624,14 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #FF4560;"></span>
                             <span class="fw-bold text-dark">Kematian</span>
+                        </div>
+                         <div class="d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #008FFB;"></span>
+                            <span class="fw-bold text-dark">Datang</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background-color: #FEB019;"></span>
+                            <span class="fw-bold text-dark">Pindah</span>
                         </div>
                     </div>
                 </div>
@@ -899,6 +923,12 @@
                 }, {
                     name: 'Kematian',
                     data: @json($deathSeries)
+                }, {
+                    name: 'Datang',
+                    data: @json($incomingSeries)
+                }, {
+                    name: 'Pindah',
+                    data: @json($outgoingSeries)
                 }],
                 chart: {
                     type: 'area', // or 'line'
@@ -908,7 +938,7 @@
                     },
                     fontFamily: "'Plus Jakarta Sans', sans-serif"
                 },
-                colors: ['#00E396', '#FF4560'],
+                colors: ['#00E396', '#FF4560', '#008FFB', '#FEB019'],
                 dataLabels: {
                     enabled: false
                 },
@@ -949,6 +979,37 @@
 
             var chart = new ApexCharts(document.querySelector("#populationChart"), options);
             chart.render();
+
+            // AJAX Filter Listener
+            document.getElementById('yearFilter').addEventListener('change', function() {
+                var year = this.value;
+                
+                // Show loading state if needed (optional)
+                // document.querySelector("#populationChart").style.opacity = 0.5;
+
+                fetch(`{{ route('api.statistics') }}?year=${year}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        chart.updateSeries([{
+                            name: 'Kelahiran',
+                            data: data.birth
+                        }, {
+                            name: 'Kematian',
+                            data: data.death
+                        }, {
+                            name: 'Datang',
+                            data: data.incoming
+                        }, {
+                            name: 'Pindah',
+                            data: data.outgoing
+                        }]);
+                        // document.querySelector("#populationChart").style.opacity = 1;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        alert('Gagal memuat data statistik.');
+                    });
+            });
         });
 
         // Custom ScrollSpy using IntersectionObserver

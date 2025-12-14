@@ -13,7 +13,7 @@ use App\Models\Gallery;
 use App\Models\Penduduk;
 use App\Models\Mutasi;
 
-Route::get('/', function () {
+Route::get('/', function (\Illuminate\Http\Request $request) {
     $profile = VillageProfile::first();
     $officials = Official::orderBy('order')->get();
     $institutions = Institution::all();
@@ -27,8 +27,8 @@ Route::get('/', function () {
     $kkLaki = Penduduk::where('status_dasar', 'HIDUP')->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')->where('jenis_kelamin', 'L')->count();
     $kkPerempuan = Penduduk::where('status_dasar', 'HIDUP')->where('status_hubungan_dalam_keluarga', 'KEPALA KELUARGA')->where('jenis_kelamin', 'P')->count();
 
-    // Chart Data: Birth & Death per Month for Current Year
-    $currentYear = date('Y');
+    // Chart Data: Birth & Death per Month for Selected Year
+    $currentYear = $request->input('year', date('Y'));
     
     $birthData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
         ->whereYear('tanggal_mutasi', $currentYear)
@@ -127,3 +127,54 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/mission/{id}', [\App\Http\Controllers\Admin\MissionController::class, 'update'])->name('admin.mission.update');
     Route::delete('/admin/mission/{id}', [\App\Http\Controllers\Admin\MissionController::class, 'destroy'])->name('admin.mission.destroy');
 });
+
+Route::get('/api/statistics', function (\Illuminate\Http\Request $request) {
+    $year = $request->input('year', date('Y'));
+
+    $birthData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $year)
+        ->where('jenis_mutasi', 'LAHIR')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    $deathData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $year)
+        ->where('jenis_mutasi', 'MATI')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    $incomingData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $year)
+        ->where('jenis_mutasi', 'DATANG')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    $outgoingData = Mutasi::selectRaw('MONTH(tanggal_mutasi) as month, COUNT(*) as count')
+        ->whereYear('tanggal_mutasi', $year)
+        ->where('jenis_mutasi', 'PINDAH')
+        ->groupBy('month')
+        ->pluck('count', 'month')
+        ->toArray();
+
+    $birthSeries = [];
+    $deathSeries = [];
+    $incomingSeries = [];
+    $outgoingSeries = [];
+    
+    for ($i = 1; $i <= 12; $i++) {
+        $birthSeries[] = $birthData[$i] ?? 0;
+        $deathSeries[] = $deathData[$i] ?? 0;
+        $incomingSeries[] = $incomingData[$i] ?? 0;
+        $outgoingSeries[] = $outgoingData[$i] ?? 0;
+    }
+
+    return response()->json([
+        'birth' => $birthSeries,
+        'death' => $deathSeries,
+        'incoming' => $incomingSeries,
+        'outgoing' => $outgoingSeries
+    ]);
+})->name('api.statistics');
