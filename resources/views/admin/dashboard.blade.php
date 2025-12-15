@@ -6,7 +6,7 @@
 @section('header-action')
 <form action="{{ route('admin.dashboard') }}" method="GET" class="d-flex align-items-center gap-2">
     <label for="year" class="fw-bold text-secondary small">Tahun:</label>
-    <select name="year" id="year" class="form-select form-select-sm rounded-2 shadow-sm border-0" style="width: 100px; cursor: pointer;" onchange="this.form.submit()">
+    <select name="year" id="year" class="form-select form-select-sm rounded-2 shadow-sm border-0" style="width: auto; cursor: pointer;" onchange="this.form.submit()">
         @foreach($years as $y)
             <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
         @endforeach

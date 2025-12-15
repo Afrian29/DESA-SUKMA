@@ -7,7 +7,8 @@
 <style>
     .hover-shadow:hover {
         transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        box-shadow: 0 10px 30px rgba(11, 47, 94, 0.1) !important;
+        border-color: var(--bs-primary) !important;
         transition: all .3s ease;
     }
     .cursor-pointer {
@@ -433,8 +434,13 @@
         const selectedForm = document.getElementById('form-' + type);
         if (selectedForm) {
             selectedForm.classList.remove('d-none');
-            // Scroll to form
-            // selectedForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Auto-scroll on mobile only
+            if (window.innerWidth < 768) {
+                setTimeout(() => {
+                    selectedForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100); // Slight delay to ensure DOM update
+            }
             
             // Re-initialize icons if needed
             if (typeof lucide !== 'undefined') {

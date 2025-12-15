@@ -127,8 +127,17 @@ class AdminController extends Controller
         $user->email = $request->email;
 
         if ($request->filled('password')) {
-            // Password update via this form is disabled in favor of reset flow
-            // $user->password = \Hash::make($request->password); 
+            $request->validate([
+                'current_password' => 'required',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            // Verify Current Password
+            if (!\Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Password lama tidak sesuai!']);
+            }
+
+            $user->password = \Hash::make($request->password); 
         }
 
         $user->save();

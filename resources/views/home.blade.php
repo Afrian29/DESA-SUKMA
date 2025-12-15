@@ -35,7 +35,7 @@
         }
 
         html {
-            font-size: 0.9rem; /* Scale down overall UI */
+            /* font-size: 0.9rem; REMOVED - Using zoom instead */
             scroll-behavior: smooth;
             scroll-padding-top: 25px; /* Offset for fixed navbar */
         }
@@ -45,6 +45,7 @@
             background-color: #fff;
             overflow-x: hidden;
             position: relative; /* Required for ScrollSpy */
+            /* zoom: 0.8; REMOVED - Back to 100% */
         }
 
         /* --- UTILITIES & ACCENTS --- */
@@ -99,12 +100,12 @@
 
         /* --- NAVBAR CUSTOM --- */
         .navbar {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            background-color: rgba(255, 255, 255, 0.95);
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+            background-color: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            /* transition: all 0.3s ease; REMOVED */
         }
         
         .navbar-brand .logo-box {
@@ -364,6 +365,36 @@
         .mission-card-outer:hover {
             box-shadow: 0px 0px 30px 1px rgba(252, 163, 17, 0.30);
         }
+
+        /* --- KADES PROFILE RESPONSIVE --- */
+        .kades-image {
+            height: 500px;
+            width: 100%;
+            object-fit: cover;
+        }
+        .kades-info-card {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            margin: 1.5rem !important; /* Force override m-4 */
+            padding: 1.5rem !important; /* Force override p-4 */
+            max-width: 80%;
+            z-index: 10;
+        }
+
+        @media (max-width: 991.98px) {
+            .kades-image {
+                height: 400px;
+            }
+            .kades-info-card {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                margin: -3rem 1rem 0 1rem !important;
+                max-width: calc(100% - 2rem) !important;
+                padding: 1.25rem !important;
+            }
+        }
     </style>
 </head>
 <body tabindex="0">
@@ -383,35 +414,37 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-lg-center">
-                    <li class="nav-item"><a class="nav-link active" href="#beranda">Beranda</a></li>
+            <div class="collapse navbar-collapse text-center" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2 gap-lg-0 p-3 p-lg-0">
+                    <li class="nav-item"><a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="#beranda">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="#visi-misi">Visi & Misi</a></li>
                     <li class="nav-item"><a class="nav-link" href="#lembaga">Lembaga</a></li>
                     <li class="nav-item"><a class="nav-link" href="#perangkat">Aparat</a></li>
                     <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
                         @auth
-                            <div class="btn-group shadow-sm rounded-pill overflow-hidden">
-                                <a href="{{ route('admin.dashboard') }}" class="btn btn-primary px-4 fw-bold d-flex align-items-center gap-2 border-end border-white border-opacity-25">
-                                    <i data-lucide="layout-dashboard" style="width: 18px;"></i> Dashboard
-                                </a>
-                                <a href="{{ route('logout') }}" 
-                                   onclick="event.preventDefault(); document.getElementById('logout-form-home').submit();"
-                                   class="btn btn-primary px-3 d-flex align-items-center hover-bg-danger transition-colors"
-                                   title="Logout">
-                                    <i data-lucide="log-out" style="width: 18px;"></i>
-                                </a>
-                            </div>
+                            <li class="nav-item mt-2 mt-lg-0">
+                                <div class="btn-group shadow-sm rounded-pill overflow-hidden mx-auto">
+                                    <a href="{{ route('admin.dashboard') }}" class="btn btn-primary px-4 fw-bold d-flex align-items-center gap-2 border-end border-white border-opacity-25" style="font-size: 0.9rem;">
+                                        <i data-lucide="layout-dashboard" style="width: 16px;"></i> Dashboard
+                                    </a>
+                                    <a href="{{ route('logout') }}" 
+                                       onclick="event.preventDefault(); document.getElementById('logout-form-home').submit();"
+                                       class="btn btn-primary px-3 d-flex align-items-center hover-bg-danger transition-colors"
+                                       title="Logout">
+                                        <i data-lucide="log-out" style="width: 16px;"></i>
+                                    </a>
+                                </div>
                                 <form id="logout-form-home" action="{{ route('logout') }}" method="POST" class="d-none">
                                     @csrf
                                 </form>
-                            </div>
+                            </li>
                         @else
-                            <a href="{{ route('login') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
-                                <i data-lucide="log-in" style="width: 18px;"></i> Login
-                            </a>
+                            <li class="nav-item mt-2 mt-lg-0">
+                                <a href="{{ route('login') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2 mx-auto" style="width: fit-content; font-size: 0.9rem;">
+                                    <i data-lucide="log-in" style="width: 16px;"></i> Login
+                                </a>
+                            </li>
                         @endauth
-                    </li>
                 </ul>
             </div>
         </div>
@@ -444,9 +477,7 @@
                     </p>
                     
                     <div class="d-flex flex-column flex-sm-row gap-3">
-                        <a href="https://youtu.be/dQw4w9WgXcQ?si=FGrmIAv6bZ051dsg" target="_blank" class="btn btn-accent btn-lg d-inline-flex align-items-center gap-2">
-                            <i data-lucide="play-circle" style="width: 20px;"></i> Profil Desa
-                        </a>
+
 
                     </div>
                 </div>
@@ -629,9 +660,9 @@
                     <!-- Decor elements -->
                     <div class="position-absolute top-0 start-0 w-100 h-100 bg-warning bg-opacity-10 rounded-4 transform-rotate" style="transform: rotate(-3deg);"></div>
                     
-                    <img src="{{ optional($profile)->kades_photo ? asset($profile->kades_photo) : 'https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=2940&auto=format&fit=crop' }}" class="img-fluid rounded-4 shadow-lg position-relative w-100 object-fit-cover" style="height: 500px;" alt="Kepala Desa">
+                    <img src="{{ optional($profile)->kades_photo ? asset($profile->kades_photo) : 'https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=2940&auto=format&fit=crop' }}" class="img-fluid rounded-4 shadow-lg position-relative kades-image" alt="Kepala Desa">
 
-                    <div class="position-absolute bottom-0 start-0 m-4 p-4 bg-white bg-opacity-90 backdrop-blur rounded-3 shadow border-start border-4 border-primary" style="max-width: 80%;">
+                    <div class="kades-info-card bg-white bg-opacity-90 backdrop-blur rounded-3 shadow border-start border-4 border-primary">
                         <small class="text-muted fw-bold text-uppercase d-block mb-1">Kepala Desa</small>
                         <h4 class="fw-bold text-primary m-0">{{ optional($profile)->kades_name ?? 'Bapak H. Sutrisno' }}</h4>
                     </div>
@@ -649,9 +680,7 @@
                         <p class="fst-italic text-secondary m-0">"Gotong royong adalah kunci kemajuan kita bersama."</p>
                     </div>
 
-                    <a href="#" class="btn btn-link text-primary fw-bold text-decoration-none p-0 d-inline-flex align-items-center">
-                        Baca Profil Lengkap <i data-lucide="arrow-right" class="ms-2"></i>
-                    </a>
+
                 </div>
             </div>
         </div>
@@ -1019,21 +1048,7 @@
         });
 
 
-        // Navbar Scroll Effect
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('shadow-sm');
-                navbar.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
-                navbar.style.paddingTop = '0.5rem';
-                navbar.style.paddingBottom = '0.5rem';
-            } else {
-                navbar.classList.remove('shadow-sm');
-                navbar.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-                navbar.style.paddingTop = '1rem';
-                navbar.style.paddingBottom = '1rem';
-            }
-        });
+
 
         // Simple Reveal Animation
         const reveals = document.querySelectorAll('.reveal');

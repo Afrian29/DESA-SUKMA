@@ -84,7 +84,7 @@
                     <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 18px;"></i>
                 </div>
                 
-                <select name="dusun" id="dusun-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;">
+                <select name="dusun" id="dusun-filter" class="form-select rounded-2 shadow-sm border-0" style="width: auto; cursor: pointer;">
                     <option value="">Semua Dusun</option>
                     <option value="Dusun 1" {{ request('dusun') == 'Dusun 1' ? 'selected' : '' }}>Dusun 1</option>
                     <option value="Dusun 2" {{ request('dusun') == 'Dusun 2' ? 'selected' : '' }}>Dusun 2</option>
@@ -103,7 +103,7 @@
                     <input type="number" name="usia_max" id="usia-max-filter" class="form-control text-center fw-bold age-input shadow-sm" placeholder="MAX" value="{{ request('usia_max') }}" style="width: 70px; height: 42px; font-size: 1rem; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 10px;" min="0" max="120">
                 </div>
 
-                <select name="pekerjaan" id="pekerjaan-filter" class="form-select rounded-2 shadow-sm border-0" style="width: 140px; cursor: pointer;">
+                <select name="pekerjaan" id="pekerjaan-filter" class="form-select rounded-2 shadow-sm border-0" style="width: auto; cursor: pointer;">
                     <option value="">Semua Pekerjaan</option>
                     @foreach($pekerjaanList as $job)
                         <option value="{{ $job }}" {{ request('pekerjaan') == $job ? 'selected' : '' }}>{{ $job }}</option>

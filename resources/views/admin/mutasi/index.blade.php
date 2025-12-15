@@ -7,7 +7,7 @@
 <div class="container-fluid p-0">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <!-- Summary Section -->
-        <div class="d-flex flex-wrap align-items-center gap-3 gap-md-4 text-secondary bg-white px-3 py-3 px-md-4 rounded-2 shadow-sm border w-100 w-md-auto">
+        <div class="d-flex flex-nowrap align-items-center gap-2 gap-md-3 text-secondary bg-white px-3 py-2 rounded-2 shadow-sm border w-auto overflow-auto">
             <div class="d-flex align-items-center gap-2" title="Total Mutasi">
                 <i data-lucide="clipboard-list" style="width: 20px;" class="text-primary"></i>
                 <span class="text-dark fw-bold fs-5">{{ $totalMutasi }}</span>
@@ -41,20 +41,20 @@
 
         <div class="d-flex align-items-center gap-2 w-100 w-md-auto justify-content-end">
             <form action="{{ route('mutasi.index') }}" method="GET" class="d-flex align-items-center gap-2">
-                <select name="jenis_mutasi" class="form-select rounded-2 shadow-sm border-0" style="width: 150px; cursor: pointer;" onchange="this.form.submit()">
+                <select name="jenis_mutasi" class="form-select rounded-2 shadow-sm border-0" style="width: auto; cursor: pointer;" onchange="this.form.submit()">
                     <option value="">Semua Kategori</option>
                     <option value="LAHIR" {{ $jenisMutasi == 'LAHIR' ? 'selected' : '' }}>Kelahiran</option>
                     <option value="MATI" {{ $jenisMutasi == 'MATI' ? 'selected' : '' }}>Kematian</option>
                     <option value="DATANG" {{ $jenisMutasi == 'DATANG' ? 'selected' : '' }}>Kedatangan</option>
                     <option value="PINDAH" {{ $jenisMutasi == 'PINDAH' ? 'selected' : '' }}>Kepindahan</option>
                 </select>
-                <select name="month" class="form-select rounded-2 shadow-sm border-0" style="width: 130px; cursor: pointer;" onchange="this.form.submit()">
+                <select name="month" class="form-select rounded-2 shadow-sm border-0" style="width: auto; cursor: pointer;" onchange="this.form.submit()">
                     <option value="">Semua Bulan</option>
                     @foreach($months as $m => $name)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ $name }}</option>
                     @endforeach
                 </select>
-                <select name="year" class="form-select rounded-2 shadow-sm border-0" style="width: 120px; cursor: pointer;" onchange="this.form.submit()">
+                <select name="year" class="form-select rounded-2 shadow-sm border-0" style="width: auto; cursor: pointer;" onchange="this.form.submit()">
                     <option value="">Semua Tahun</option>
                     @foreach($years as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>

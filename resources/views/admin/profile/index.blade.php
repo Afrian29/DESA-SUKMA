@@ -44,7 +44,7 @@
                 
                 <!-- KADES & SAMBUTAN TAB -->
                 <div class="tab-pane fade show active" id="kades" role="tabpanel">
-                    <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data" class="pb-5">
                         @csrf
                         <div class="row g-4">
                             <div class="col-md-4 text-center">

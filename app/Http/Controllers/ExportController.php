@@ -39,18 +39,20 @@ class ExportController extends Controller
         $templatePath = storage_path('app/templates/laporan_data_penduduk_sukma.docx');
         
         if (!file_exists($templatePath)) {
-            return back()->with('error', 'Template file tidak ditemukan.');
+            return back()->with('error', 'Template file tidak ditemukan. Pastikan file ada di ' . $templatePath);
         }
 
         $templateProcessor = new TemplateProcessor($templatePath);
 
         // Replace statistics placeholders
+        // Map data to template variables (e.g. ${total_penduduk})
         $templateProcessor->setValue('total_penduduk', $totalPenduduk);
         $templateProcessor->setValue('kartu_keluarga', $totalKK);
         $templateProcessor->setValue('jumlah_laki', $jumlahLaki);
         $templateProcessor->setValue('jumlah_perempuan', $jumlahPerempuan);
 
         // Prepare table data - group by KK and only show NO.KK on first row
+        // Template must have a row with variables like ${no_kk}, ${nik}, ${nama_lengkap}, etc.
         $tableData = [];
         $previousKK = null;
         
@@ -76,7 +78,14 @@ class ExportController extends Controller
         }
 
         // Clone rows and set values for each penduduk
-        $templateProcessor->cloneRowAndSetValues('no_kk', $tableData);
+        // Assumes template has a row with variables matching the keys in $tableData (e.g., ${no_kk}, ${nama}, ${ttl})
+        // NOTE: The first argument 'no_kk' tells PHPWord which variable to look for to clone the row.
+        try {
+            $templateProcessor->cloneRowAndSetValues('no_kk', $tableData);
+        } catch (\Exception $e) {
+            // Fallback or better error handling if row cloning fails (e.g. variable not found in template)
+            return back()->with('error', 'Gagal memproses template: ' . $e->getMessage());
+        }
 
         // Generate filename with timestamp
         $filename = 'Laporan_Data_Penduduk_Desa_Sukma_' . Carbon::now()->format('Y-m-d_H-i-s') . '.docx';
