@@ -150,30 +150,80 @@
 
         /* Responsive Sidebar */
         @media (max-width: 768px) {
+            /* body zoom reset removed to restore original look */
             .sidebar {
                 width: 100%;
-                height: auto;
-                position: relative;
+                height: auto; 
+                min-height: 60px; /* Ensure minimum height */
+                position: fixed; /* Restore FIXED position */
+                bottom: auto;
+                left: 0;
+                top: 0;
                 flex-direction: row;
                 justify-content: space-between;
                 padding: 0.5rem 1rem;
                 align-items: center;
-                zoom: 1; /* Reset zoom on mobile if needed or keep consistent */
+                zoom: 1; /* Keep sidebar readable */
+                border-right: none;
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+                z-index: 1000;
             }
-            .main-content {
-                margin-left: 0; /* No margin on mobile */
-                padding: 0 1rem 1rem 1rem;
+            
+            .sidebar-brand {
+                margin-bottom: 0;
+                margin-right: 1rem;
+                width: auto;
             }
-            .top-header {
-                padding-top: 1rem;
-                flex-direction: column;
-                align-items: flex-start;
+
+            .sidebar .nav {
+                flex-direction: row !important;
+                width: auto;
+                gap: 0.5rem;
+                /* overflow-x: auto; REMOVED to allow dropdown display */
+                padding-right: 1rem;
+                flex-wrap: wrap; /* Allow wrapping if really needed, though unlikely */
             }
-            .top-header > div {
-                width: 100%;
-                justify-content: space-between;
+
+            /* Fix Dropdown on Mobile (Force Down) */
+            .sidebar .dropend .dropdown-menu {
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: auto !important;
+                margin-left: -50% !important; /* Center alignment attempt or just 0 */
+                margin-top: 0.5rem !important;
+                transform: none !important;
+            }
+            .sidebar .dropend .dropdown-toggle::after {
+                display: none;
+            }
+
+            .nav-item {
+                margin-bottom: 0;
+                width: auto;
+                position: relative; /* Context for dropdown */
+            }
+            
+            /* Hide bottom section or integrate it */
+            .sidebar .mt-auto {
+                margin-top: 0 !important;
+                width: auto !important;
                 display: flex;
-                align-items: center;
+                gap: 0.5rem;
+                margin-left: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 6rem 1rem 3rem 1rem !important; /* Restore large top padding to clear fixed header. Added bottom padding. */
+            }
+
+            .top-header {
+                position: static; /* Let it flow since sidebar is fixed top */
+                padding-top: 1rem;
+                margin-bottom: 1.5rem;
+                background: transparent;
+                backdrop-filter: none;
             }
         }
 
@@ -431,6 +481,47 @@
                             <label class="form-label small text-muted text-uppercase fw-bold ls-1">Email</label>
                             <input type="email" name="email" class="form-control rounded-3" value="{{ Auth::user()->email }}" required>
                         </div>
+                        
+                        <hr class="my-4 opactiy-25">
+                        <h6 class="fw-bold text-primary mb-3">Ganti Password (Opsional)</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold ls-1">Password Lama</label>
+                            <div class="input-group">
+                                <input type="password" name="current_password" class="form-control rounded-start-3" placeholder="Masukan password lama..." autocomplete="off">
+                                <button class="btn btn-outline-secondary toggle-password rounded-end-3" type="button">
+                                    <i data-lucide="eye" class="icon-show" style="width: 18px;"></i>
+                                    <i data-lucide="eye-off" class="icon-hide d-none" style="width: 18px;"></i>
+                                </button>
+                            </div>
+                            <small class="text-secondary" style="font-size: 0.7rem;">Wajib diisi jika ingin mengubah password.</small>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold ls-1">Password Baru</label>
+                                    <div class="input-group">
+                                        <input type="password" name="password" class="form-control rounded-start-3" placeholder="Password baru..." autocomplete="new-password">
+                                        <button class="btn btn-outline-secondary toggle-password rounded-end-3" type="button">
+                                            <i data-lucide="eye" class="icon-show" style="width: 18px;"></i>
+                                            <i data-lucide="eye-off" class="icon-hide d-none" style="width: 18px;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted text-uppercase fw-bold ls-1">Ulangi Password Baru</label>
+                                    <div class="input-group">
+                                        <input type="password" name="password_confirmation" class="form-control rounded-start-3" placeholder="Ulangi password..." autocomplete="new-password">
+                                        <button class="btn btn-outline-secondary toggle-password rounded-end-3" type="button">
+                                            <i data-lucide="eye" class="icon-show" style="width: 18px;"></i>
+                                            <i data-lucide="eye-off" class="icon-hide d-none" style="width: 18px;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
@@ -443,6 +534,24 @@
 
     <script>
         lucide.createIcons();
+        
+        // Password Toggle
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                
+                // Toggle icons (SVG or i)
+                const showIcon = this.querySelector('.icon-show');
+                const hideIcon = this.querySelector('.icon-hide');
+                
+                if (showIcon && hideIcon) {
+                    showIcon.classList.toggle('d-none');
+                    hideIcon.classList.toggle('d-none');
+                }
+            });
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

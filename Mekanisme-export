@@ -1,0 +1,44 @@
+# Mekanisme Export Data Penduduk
+
+Dokumen ini menjelaskan alur teknis (flow) bagaimana fitur Export ke Word bekerja dalam aplikasi ini.
+
+## 1. Persiapan Template (Di Server)
+Sistem menggunakan sebuah file "induk" (template) berformat Microsoft Word (`.docx`).
+- **Lokasi File:** `storage/app/templates/laporan_data_penduduk_sukma.docx`
+- **Isi Template:** File ini berisi desain surat, kop surat, tabel kosong, dan "variabel" khusus yang ditandai dengan simbol `${...}`.
+- **Contoh Variabel:**
+  - `${nama_lengkap}` : Akan diganti dengan nama penduduk.
+  - `${nik}` : Akan diganti dengan NIK.
+  - `${total_penduduk}` : Akan diganti dengan angka total.
+
+## 2. Proses di Controller (`ExportController.php`)
+Ketika tombol "Export Word" diklik, sistem menjalankan fungsi `exportPendudukWord()` dengan langkah-langkah:
+
+### A. Mengambil Data (Query Database)
+Sistem mengambil data dari tabel database `penduduks`.
+- Hanya penduduk yang `status_dasar = 'HIDUP'`.
+- Data diurutkan (sorting) berdasarkan Nomor KK, lalu urutan keluarga (Kepala Keluarga > Istri > Anak).
+
+### B. Menghitung Statistik
+Sistem menghitung ringkasan angka untuk ditampilkan di bagian atas laporan:
+- Total Penduduk
+- Total Kepala Keluarga (KK)
+- Jumlah Laki-laki & Perempuan
+
+### C. Membaca Template
+Sistem membuka file template `.docx` menggunakan library `phpword`.
+- Jika file template tidak ketemu, sistem akan error.
+
+### D. Mengisi Data (Search & Replace)
+1.  **Isi Statistik:** Sistem mencari variabel `${total_penduduk}`, dll di template dan menggantinya dengan angka hasil hitungan.
+2.  **Isi Tabel:**
+    - Sistem menyiapkan daftar data penduduk.
+    - Sistem mencari baris tabel di template yang mengandung variabel `${no_kk}`.
+    - Baris tersebut di-"copy" (cloning) sebanyak jumlah penduduk.
+    - Setiap baris kloningan diisi dengan data penduduk masing-masing.
+
+## 3. Download File
+- Setelah semua data terisi, sistem menyimpan hasilnya menjadi file sementara (temporary file).
+- File tersebut diberi nama baru (misal: `Laporan_Data_Penduduk_....docx`).
+- File dikirim ke browser pengguna untuk didownload.
+- File sementara di server langsung dihapus agar tidak memenuh-menuhi penyimpanan.
